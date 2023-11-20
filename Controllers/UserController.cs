@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Text;
 using System.Security.Cryptography;
+using Microsoft.AspNetCore.Identity;
 
 namespace LUSCMaintenance.Controllers
 {
@@ -24,6 +25,7 @@ namespace LUSCMaintenance.Controllers
     {
         private readonly LUSCMaintenanceDbContext _dbContext;
         private readonly IUserRepository _userRepository;
+        private readonly SignInManager<User> _signInManager;
         private readonly ILogger<UserController> _logger;
         private readonly SmtpSettings _smtpSettings;
 
@@ -31,10 +33,13 @@ namespace LUSCMaintenance.Controllers
             LUSCMaintenanceDbContext dbContext,
             IUserRepository userRepository,
             IOptions<SmtpSettings> smtpSettings,
+            SignInManager<User> signInManager,
             ILogger<UserController> logger)
+
         {
             _dbContext = dbContext;
             _userRepository = userRepository;
+            _signInManager = signInManager;
             _logger = logger;
             _smtpSettings = smtpSettings.Value;
         }
