@@ -1,6 +1,7 @@
 ﻿using LUSCMaintenance.Data;
 using LUSCMaintenance.Interfaces;
 using LUSCMaintenance.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace LUSCMaintenance.Repositories
@@ -14,11 +15,24 @@ namespace LUSCMaintenance.Repositories
             _dbContext = dbContext;
         }
 
+
+
+        public async Task<User> GetUserByIdAsync(int userId)
+        {
+            return await _dbContext.Users.FindAsync(userId);
+        }
+
+
         public async Task<User> GetUserByEmailAsync(string webMail)
         {
             return await _dbContext.Users
                 .Include(u => u.UserVerification)
                 .FirstOrDefaultAsync(u => u.WebMail == webMail);
+        }
+        public async Task CreatePasswordResetAsync(PasswordReset passwordReset)
+        {
+            _dbContext.PasswordResets.Add(passwordReset);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task CreateUserAsync(User user)

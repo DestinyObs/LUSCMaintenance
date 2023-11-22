@@ -64,8 +64,6 @@ namespace LUSC_e_Maintenance
                            .AllowAnyHeader();
                 });
             });
-            //adding memory cache
-            builder.Services.AddMemoryCache();
 
             builder.Services.AddScoped<IUserRepository, UserRepository>();
 
