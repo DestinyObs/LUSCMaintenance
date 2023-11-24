@@ -70,5 +70,29 @@ namespace LUSCMaintenance.Repositories
             _dbContext.UserVerifications.Update(userVerification);
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task UpdatePasswordResetAsync(PasswordReset passwordReset)
+        {
+
+            // Mark the entity as modified
+            _dbContext.Entry(passwordReset).State = EntityState.Modified;
+
+            // Save changes to the database
+            await _dbContext.SaveChangesAsync();
+        }
+        public async Task<PasswordReset> GetPasswordResetByTokenAsync(string resetToken)
+        {
+            return await _dbContext.PasswordResets.FirstOrDefaultAsync(pr => pr.ResetToken == resetToken);
+        }
+
+        public async Task DeletePasswordResetByTokenAsync(string resetToken)
+        {
+            var passwordReset = await _dbContext.PasswordResets.FirstOrDefaultAsync(pr => pr.ResetToken == resetToken);
+            if (passwordReset != null)
+            {
+                _dbContext.PasswordResets.Remove(passwordReset);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
     }
 }

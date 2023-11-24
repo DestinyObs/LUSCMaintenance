@@ -211,6 +211,59 @@ namespace LUSCMaintenance.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing the request.");
             }
         }
+        [HttpPost("UpdatePassword")]
+        public async Task<IActionResult> UpdatePassword([FromBody] PasswordUpdateRequest request)
+        {
+            try
+            {
+                // Validate the request using the view model
+                var validationContext = new ValidationContext(request, serviceProvider: null, items: null);
+                var validationResults = new List<ValidationResult>();
+
+                if (!Validator.TryValidateObject(request, validationContext, validationResults, validateAllProperties: true))
+                {
+                    // Return validation errors
+                    return BadRequest(validationResults.Select(vr => vr.ErrorMessage));
+                }
+
+                // Validate the reset token
+                var passwordReset = await _userRepository.GetPasswordResetByTokenAsync(request.ResetToken);
+
+                if (passwordReset == null || passwordReset.IsUsed)
+                {
+                    return BadRequest("Invalid or expired reset token.");
+                }
+
+                // Find the user by Id
+                var user = await _userRepository.GetUserByIdAsync(passwordReset.UserId);
+
+                if (user == null)
+                {
+                    return NotFound("User not found.");
+                }
+
+                // Update the user's password
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+                user.Password = hashedPassword;
+
+                // Mark the reset token as used and delete it
+                passwordReset.IsUsed = true;
+                await _userRepository.UpdatePasswordResetAsync(passwordReset);
+                await _userRepository.DeletePasswordResetByTokenAsync(request.ResetToken);
+
+                // Save the updated user
+                await _userRepository.UpdateUserAsync(user);
+
+                return Ok("Password updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                _logger.LogError(ex, "An error occurred while processing the password update request.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing the request.");
+            }
+        }
+
 
         private string GeneratePasswordResetToken()
         {
@@ -243,7 +296,7 @@ namespace LUSCMaintenance.Controllers
                 issuer: _configuration["JwtSettings:Issuer"],
                 audience: _configuration["JwtSettings:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(10), // Token expiration time (adjust as needed)
+                expires: DateTime.UtcNow.AddHours(10), // Token expiration time (adjust as n8ijcueeded)
                 signingCredentials: credentials
             );
 

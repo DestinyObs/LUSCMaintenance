@@ -10,7 +10,10 @@ namespace LUSCMaintenance.Interfaces
         Task UpdateUserAsync(User user);
         Task<UserVerification> GetUserVerificationAsync(string userId);
         Task CreatePasswordResetAsync(PasswordReset passwordReset);
+        Task<PasswordReset> GetPasswordResetByTokenAsync(string resetToken);
+        Task UpdatePasswordResetAsync(PasswordReset passwordReset);
         Task CreateUserVerificationAsync(UserVerification userVerification);
+        Task DeletePasswordResetByTokenAsync(string resetToken);
         Task UpdateUserVerificationAsync(UserVerification userVerification);
     }
 }
