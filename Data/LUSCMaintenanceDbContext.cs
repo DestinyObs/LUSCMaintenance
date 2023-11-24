@@ -9,6 +9,7 @@ namespace LUSCMaintenance.Data
         public DbSet<User> Users { get; set; }
         public DbSet<UserVerification> UserVerifications { get; set; }
         public DbSet<PasswordReset> PasswordResets { get; set; }
+        public DbSet<MaintenanceIssueCategory> MaintenanceIssueCategories { get; set; }
 
         public LUSCMaintenanceDbContext(DbContextOptions<LUSCMaintenanceDbContext> options) : base(options)
         {
@@ -27,6 +28,12 @@ namespace LUSCMaintenance.Data
           .HasForeignKey(pr => pr.UserId)
           .IsRequired();
 
+            // Seed Maintenance Issue Categories
+            modelBuilder.Entity<MaintenanceIssueCategory>().HasData(
+                new MaintenanceIssueCategory { Id = 1, Name = "Electrical Maintenance" },
+                new MaintenanceIssueCategory { Id = 2, Name = "Carpentry" },
+                new MaintenanceIssueCategory { Id = 3, Name = "Plumbing" }
+            );
 
 
             base.OnModelCreating(modelBuilder);

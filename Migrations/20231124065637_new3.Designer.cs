@@ -4,6 +4,7 @@ using LUSCMaintenance.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LUSC_e_Maintenance.Migrations
 {
     [DbContext(typeof(LUSCMaintenanceDbContext))]
-    partial class LUSCMaintenanceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231124065637_new3")]
+    partial class new3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,24 +39,7 @@ namespace LUSC_e_Maintenance.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MaintenanceIssueCategories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Electrical Maintenance"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Carpentry"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Plumbing"
-                        });
+                    b.ToTable("MaintenanceIssueCategory");
                 });
 
             modelBuilder.Entity("LUSCMaintenance.Models.PasswordReset", b =>
