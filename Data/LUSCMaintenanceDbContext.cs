@@ -23,10 +23,10 @@ namespace LUSCMaintenance.Data
                 .HasForeignKey<User>(u => u.UserVerificationId)
                 .IsRequired(false);
             modelBuilder.Entity<PasswordReset>()
-          .HasOne(pr => pr.User)
-          .WithMany()
-          .HasForeignKey(pr => pr.UserId)
-          .IsRequired();
+                .HasOne(pr => pr.User)
+                .WithMany()
+                .HasForeignKey(pr => pr.UserId)
+                .IsRequired();
 
             // Seed Maintenance Issue Categories
             modelBuilder.Entity<MaintenanceIssueCategory>().HasData(
