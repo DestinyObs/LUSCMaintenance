@@ -14,7 +14,7 @@ namespace LUSCMaintenance.Data
         public LUSCMaintenanceDbContext(DbContextOptions<LUSCMaintenanceDbContext> options) : base(options)
         {
 
-        }
+        } 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
@@ -32,7 +32,8 @@ namespace LUSCMaintenance.Data
             modelBuilder.Entity<MaintenanceIssueCategory>().HasData(
                 new MaintenanceIssueCategory { Id = 1, Name = "Electrical Maintenance" },
                 new MaintenanceIssueCategory { Id = 2, Name = "Carpentry" },
-                new MaintenanceIssueCategory { Id = 3, Name = "Plumbing" }
+                new MaintenanceIssueCategory { Id = 3, Name = "Others" },
+                new MaintenanceIssueCategory { Id = 4, Name = "Plumbing" }
             );
 
 
