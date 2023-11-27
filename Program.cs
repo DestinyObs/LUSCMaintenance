@@ -5,6 +5,7 @@ using LUSCMaintenance.Repositories;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -23,6 +24,18 @@ namespace LUSC_e_Maintenance
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("MyString"));
             });
+           
+            builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequiredLength = 6;
+
+            })
+              .AddEntityFrameworkStores<LUSCMaintenanceDbContext>()
+              .AddDefaultTokenProviders();
 
             //linking the STMP setting
             builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
@@ -32,6 +45,9 @@ namespace LUSC_e_Maintenance
                     .RequireAuthenticatedUser()
                     .Build();
             });
+           
+
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -66,10 +82,17 @@ namespace LUSC_e_Maintenance
             });
 
             builder.Services.AddScoped<IUserRepository, UserRepository>();
-
+            builder.Services.AddScoped<RoleManager<IdentityRole<int>>>();
             builder.Services.AddScoped<IMaintenanceIssueCategoryRepository, MaintenanceIssueCategoryRepository>();
+            builder.Services.AddScoped<IMaintenanceIssueRepository, MaintenanceIssueRepository>();
 
-
+            //// Seed admin user and role during startup
+            //using (var scope = builder.Services.BuildServiceProvider().CreateScope())
+            //{
+            //    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+            //    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            //    DbInitializer.InitializeAsync(userManager, roleManager).Wait();
+            //}
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

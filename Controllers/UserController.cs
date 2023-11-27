@@ -29,6 +29,7 @@ namespace LUSCMaintenance.Controllers
         private readonly LUSCMaintenanceDbContext _dbContext;
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
+        private readonly UserManager<User> _userManager;
         private readonly ILogger<UserController> _logger;
         private readonly SmtpSettings _smtpSettings;
 
@@ -36,6 +37,7 @@ namespace LUSCMaintenance.Controllers
             LUSCMaintenanceDbContext dbContext,
             IUserRepository userRepository, 
             IConfiguration configuration,
+            UserManager<User> userManager,
             IOptions<SmtpSettings> smtpSettings,
             ILogger<UserController> logger)
 
@@ -43,6 +45,7 @@ namespace LUSCMaintenance.Controllers
             _dbContext = dbContext;
             _userRepository = userRepository;
             _configuration = configuration;
+            _userManager = userManager;
             _logger = logger;
             _smtpSettings = smtpSettings.Value;
         }
@@ -76,12 +79,18 @@ namespace LUSCMaintenance.Controllers
                 var newUser = new User
                 {
                     WebMail = request.WebMail,
-                    Password = hashedPassword,
+                    UserName = request.WebMail,
                     IsVerified = false
                 };
 
                 // Save the user to the database
-                await _userRepository.CreateUserAsync(newUser);
+                var result = await _userManager.CreateAsync(newUser, request.Password);
+
+                if (!result.Succeeded)
+                {
+                    // Handle errors (e.g., duplicate user, invalid password)
+                    return BadRequest(result.Errors.Select(error => error.Description));
+                }
 
                 // Generate a verification token
                 var verificationToken = GenerateVerificationToken();
@@ -136,7 +145,7 @@ namespace LUSCMaintenance.Controllers
                 }
 
                 // Verify the password
-                if (BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
+                if (await _userManager.CheckPasswordAsync(user, request.Password))
                 {
                     // Check if the user is verified
                     if (!user.IsVerified)
@@ -151,6 +160,7 @@ namespace LUSCMaintenance.Controllers
                 }
 
                 return Unauthorized("Invalid credentials. Please check your email and password.");
+
             }
             catch (Exception ex)
             {
@@ -242,19 +252,23 @@ namespace LUSCMaintenance.Controllers
                     return NotFound("User not found.");
                 }
 
-                // Update the user's password
-                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
-                user.Password = hashedPassword;
+                // Use UserManager to update the password
+                var result = await _userManager.ResetPasswordAsync(user, request.ResetToken, request.NewPassword);
+
+                if (!result.Succeeded)
+                {
+                    // Handle errors (e.g., invalid token, weak password)
+                    return BadRequest(result.Errors.Select(error => error.Description));
+                }
 
                 // Mark the reset token as used and delete it
                 passwordReset.IsUsed = true;
                 await _userRepository.UpdatePasswordResetAsync(passwordReset);
                 await _userRepository.DeletePasswordResetByTokenAsync(request.ResetToken);
 
-                // Save the updated user
-                await _userRepository.UpdateUserAsync(user);
-
+                // No need to save the user separately when using UserManager
                 return Ok("Password updated successfully.");
+
             }
             catch (Exception ex)
             {
