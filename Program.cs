@@ -82,9 +82,9 @@ namespace LUSC_e_Maintenance
             });
 
             builder.Services.AddScoped<IUserRepository, UserRepository>();
-            builder.Services.AddScoped<RoleManager<IdentityRole<int>>>();
             builder.Services.AddScoped<IMaintenanceIssueCategoryRepository, MaintenanceIssueCategoryRepository>();
             builder.Services.AddScoped<IMaintenanceIssueRepository, MaintenanceIssueRepository>();
+            builder.Services.AddScoped<IMaintenanceProblemRepository, MaintenanceProblemRepository>();
 
             //// Seed admin user and role during startup
             //using (var scope = builder.Services.BuildServiceProvider().CreateScope())

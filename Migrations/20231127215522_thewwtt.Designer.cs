@@ -4,6 +4,7 @@ using LUSCMaintenance.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LUSC_e_Maintenance.Migrations
 {
     [DbContext(typeof(LUSCMaintenanceDbContext))]
-    partial class LUSCMaintenanceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231127215522_thewwtt")]
+    partial class thewwtt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,7 +44,7 @@ namespace LUSC_e_Maintenance.Migrations
 
                     b.HasIndex("MaintenanceIssueCategoryId");
 
-                    b.ToTable("MaintenanceIssues", (string)null);
+                    b.ToTable("MaintenanceIssues");
 
                     b.HasData(
                         new
@@ -78,7 +81,7 @@ namespace LUSC_e_Maintenance.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MaintenanceIssueCategories", (string)null);
+                    b.ToTable("MaintenanceIssueCategories");
 
                     b.HasData(
                         new
@@ -139,7 +142,7 @@ namespace LUSC_e_Maintenance.Migrations
 
                     b.HasIndex("MaintenanceIssueId");
 
-                    b.ToTable("MaintenanceProblems", (string)null);
+                    b.ToTable("MaintenanceProblems");
                 });
 
             modelBuilder.Entity("LUSCMaintenance.Models.PasswordReset", b =>
@@ -167,7 +170,7 @@ namespace LUSC_e_Maintenance.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PasswordResets", (string)null);
+                    b.ToTable("PasswordResets");
                 });
 
             modelBuilder.Entity("LUSCMaintenance.Models.User", b =>
@@ -280,7 +283,7 @@ namespace LUSC_e_Maintenance.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserVerifications", (string)null);
+                    b.ToTable("UserVerifications");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using LUSCMaintenance.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace LUSCMaintenance.Data
 {
@@ -12,6 +13,7 @@ namespace LUSCMaintenance.Data
         public DbSet<PasswordReset> PasswordResets { get; set; }
         public DbSet<MaintenanceIssueCategory> MaintenanceIssueCategories { get; set; }
         public DbSet<MaintenanceIssue> MaintenanceIssues { get; set; }
+        public DbSet<MaintenanceProblem> MaintenanceProblems { get; set; }
 
         public LUSCMaintenanceDbContext(DbContextOptions<LUSCMaintenanceDbContext> options) : base(options)
         {
@@ -44,7 +46,24 @@ namespace LUSCMaintenance.Data
           );
 
 
+            modelBuilder.Entity<User>().HasData(
+                new User
+                {
+                    Id = 1,
+                    UserName = "obueh.destiny@lmu.edu.ng",
+                    NormalizedUserName = "OBUEH.DESTINY@LMU.EDU.NG",
+                    Email = "obueh.destiny@lmu.edu.ng",
+                    NormalizedEmail = "ADMIN@DOMAIN.COM",
+                    EmailConfirmed = true,
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(null, "Admin@123"),
+                    SecurityStamp = string.Empty,
+                    IsVerified = true // Admin is automatically verified
+                }
+            );
 
+            modelBuilder.Entity<IdentityUserRole<int>>().HasData(
+                new IdentityUserRole<int> { RoleId = 1, UserId = 1 }
+            );
 
             base.OnModelCreating(modelBuilder);
         }
