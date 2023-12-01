@@ -1,4 +1,5 @@
 using LUSCMaintenance.Data;
+using LUSCMaintenance.Helpers;
 using LUSCMaintenance.Interfaces;
 using LUSCMaintenance.Models;
 using LUSCMaintenance.Repositories;
@@ -36,6 +37,7 @@ namespace LUSC_e_Maintenance
             })
               .AddEntityFrameworkStores<LUSCMaintenanceDbContext>()
               .AddDefaultTokenProviders();
+            builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 
             //linking the STMP setting
             builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));
@@ -86,13 +88,6 @@ namespace LUSC_e_Maintenance
             builder.Services.AddScoped<IMaintenanceIssueRepository, MaintenanceIssueRepository>();
             builder.Services.AddScoped<IMaintenanceProblemRepository, MaintenanceProblemRepository>();
 
-            //// Seed admin user and role during startup
-            //using (var scope = builder.Services.BuildServiceProvider().CreateScope())
-            //{
-            //    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
-            //    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            //    DbInitializer.InitializeAsync(userManager, roleManager).Wait();
-            //}
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
