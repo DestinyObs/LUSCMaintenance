@@ -4,6 +4,7 @@ using LUSCMaintenance.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LUSC_e_Maintenance.Migrations
 {
     [DbContext(typeof(LUSCMaintenanceDbContext))]
-    partial class LUSCMaintenanceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231201203700_juju")]
+    partial class juju
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -264,16 +267,16 @@ namespace LUSC_e_Maintenance.Migrations
                         {
                             Id = 9,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "008329ca-b911-484f-b229-0610760a1a2e",
+                            ConcurrencyStamp = "edb972d8-223c-4055-a095-c53c8bbbb977",
                             Email = "Admin@lmu.edu.ng",
                             EmailConfirmed = true,
                             IsVerified = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@LMU.EDU.NG",
                             NormalizedUserName = "ADMIN@LMU.EDU.NG",
-                            PasswordHash = "$2a$10$NhXI2scJhVxg/mWp5.JXOeUy7uTZOtw60ZQzgoc7O/Tqgtzi2h.Ra",
+                            PasswordHash = "$2a$10$SONI/8V4EkK2grmhbEfnyecczOK2OKU5UBXgatny/33mNt9KvUTTu",
                             PhoneNumberConfirmed = false,
-                            Roles = "Admin",
+                            Roles = "Student",
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
                             UserName = "Admin@lmu.edu.ng",

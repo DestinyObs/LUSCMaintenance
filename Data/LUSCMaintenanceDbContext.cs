@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using LUSCMaintenance.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using System.Collections.Generic;
 
 namespace LUSCMaintenance.Data
 {
@@ -18,7 +17,7 @@ namespace LUSCMaintenance.Data
         public LUSCMaintenanceDbContext(DbContextOptions<LUSCMaintenanceDbContext> options) : base(options)
         {
 
-        } 
+        }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
@@ -43,31 +42,40 @@ namespace LUSCMaintenance.Data
               new MaintenanceIssue { Id = 1, Description = "Faulty Socket", MaintenanceIssueCategoryId = 1 },
               new MaintenanceIssue { Id = 2, Description = "Broken Door", MaintenanceIssueCategoryId = 2 },
               new MaintenanceIssue { Id = 3, Description = "Bad Window", MaintenanceIssueCategoryId = 4 }
-          );
+            );
+            modelBuilder.Entity<IdentityRole<int>>().HasData(
+                new IdentityRole<int>
+                {
+                    Id = 1,
+                    Name = "Admin", 
+                    NormalizedName = "ADMIN" 
+                }
+                );
 
+            string salt = BCrypt.Net.BCrypt.GenerateSalt();
 
             modelBuilder.Entity<User>().HasData(
                 new User
                 {
-                    Id = 1,
-                    UserName = "obueh.destiny@lmu.edu.ng",
-                    NormalizedUserName = "OBUEH.DESTINY@LMU.EDU.NG",
-                    Email = "obueh.destiny@lmu.edu.ng",
-                    NormalizedEmail = "ADMIN@DOMAIN.COM",
+                    Id = 9,
+                    UserName = "Admin@lmu.edu.ng",
+                    NormalizedUserName = "ADMIN@LMU.EDU.NG",
+                    Email = "Admin@lmu.edu.ng",
+                    NormalizedEmail = "ADMIN@LMU.EDU.NG",
                     EmailConfirmed = true,
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(null, "Admin@123"),
+                    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123", salt),
                     SecurityStamp = string.Empty,
-                    IsVerified = true // Admin is automatically verified
+                    Roles = "Admin",
+                    IsVerified = true, // Admin is automatically verified
+                    WebMail = "Admin@lmu.edu.ng"
                 }
             );
-
             modelBuilder.Entity<IdentityUserRole<int>>().HasData(
-                new IdentityUserRole<int> { RoleId = 1, UserId = 1 }
+                new IdentityUserRole<int> { RoleId = 1, UserId = 9 }
             );
+
 
             base.OnModelCreating(modelBuilder);
         }
-       
-
     }
 }

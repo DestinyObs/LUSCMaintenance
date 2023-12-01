@@ -23,6 +23,7 @@ namespace LUSCMaintenance.Models
 
         [Required]
         public string WebMail { get; set; }
+        public string ImageURL { get; set; }
 
         [Required]
         public int MaintenanceIssueId { get; set; }
