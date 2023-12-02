@@ -1,18 +1,14 @@
-﻿using System;
+﻿// MaintenanceProblemController.cs
+using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LUSCMaintenance.Interfaces;
 using LUSCMaintenance.Models;
-using System.Net.Mail;
-using System.Net;
-using Microsoft.Extensions.Options;
+using LUSCMaintenance.Services;
 using LUSCMaintenance.Controllers;
 using System.Security.Claims;
-using static System.Net.Mime.MediaTypeNames;
-using LUSCMaintenance.Services;
 
 namespace LUSC_e_Maintenance.Controllers
 {
@@ -22,90 +18,57 @@ namespace LUSC_e_Maintenance.Controllers
     public class MaintenanceProblemController : ControllerBase
     {
         private readonly IMaintenanceProblemRepository _maintenanceProblemRepository;
-        private readonly ILogger<UserController> _logger;
         private readonly IPhotoService _photoService;
-        private readonly SmtpSettings _smtpSettings;
 
-        public MaintenanceProblemController(IMaintenanceProblemRepository maintenanceProblemRepository, IOptions<SmtpSettings> smtpSettings, ILogger<UserController> logger, IPhotoService photoService)
+        public MaintenanceProblemController(
+            IMaintenanceProblemRepository maintenanceProblemRepository,
+            IPhotoService photoService)
         {
             _maintenanceProblemRepository = maintenanceProblemRepository;
-            _logger = logger;
             _photoService = photoService;
-            _smtpSettings = smtpSettings.Value;
         }
-
-        [Authorize(Roles = "Student")]
-        [HttpPost]
-        public async Task<ActionResult<MaintenanceProblem>> AddMaintenanceProblem([FromBody] MaintenanceProblem maintenanceProblem, IFormFile image)
-        {
-            // Extract webmail from the authorized JWT token
-            var userWebMail = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
-
-            // Check if an image is provided
-            if (image != null && image.Length > 0)
-            {
-                // Use the PhotoService to handle image upload and resizing
-                var uploadResult = await _photoService.AddPhotoAsync(image, 100 * 1024);
-
-                // Check if the photo upload was successful
-                if (uploadResult.Error == null)
-                {
-                    // Set the ImageURL property in MaintenanceProblem
-                    maintenanceProblem.ImageURL = uploadResult.SecureUri.AbsoluteUri;
-                }
-                else
-                {
-                    // Handle the case where photo upload failed (log, return an error response, etc.)
-                    // For now, you can choose to return a BadRequest response
-                    return BadRequest("Failed to upload photo.");
-                }
-            }
-
-            // Populate the maintenance problem properties
-            maintenanceProblem.WebMail = userWebMail;
-            maintenanceProblem.IsResolved = false;
-            maintenanceProblem.TimeAvailable = DateTime.Now;
-
-            // Add the maintenance problem
-            await _maintenanceProblemRepository.AddMaintenanceProblemAsync(maintenanceProblem);
-
-            // Send email notification to the user (you can use your existing SendEmail logic)
-            await SendEmail(userWebMail, "Maintenance Problem Submitted", "Your maintenance problem has been submitted successfully.");
-
-            return CreatedAtAction(nameof(GetMaintenanceProblemById), new { id = maintenanceProblem.Id }, maintenanceProblem);
-        }
-
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MaintenanceProblem>>> GetMaintenanceProblems()
+        public async Task<ActionResult<IEnumerable<MaintenanceProblemResponse>>> GetMaintenanceProblems()
         {
             var maintenanceProblems = await _maintenanceProblemRepository.GetMaintenanceProblemsAsync();
-            return Ok(maintenanceProblems);
+            var response = MapToResponse(maintenanceProblems);
+            return Ok(response);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
-        public async Task<ActionResult<MaintenanceProblem>> GetMaintenanceProblemById(int id)
+        public async Task<ActionResult<MaintenanceProblemResponse>> GetMaintenanceProblemById(int id)
         {
             var maintenanceProblem = await _maintenanceProblemRepository.GetMaintenanceProblemByIdAsync(id);
             if (maintenanceProblem == null)
             {
                 return NotFound();
             }
-            return Ok(maintenanceProblem);
+
+            var response = MapToResponse(maintenanceProblem);
+            return Ok(response);
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateMaintenanceProblem(int id, [FromBody] MaintenanceProblem maintenanceProblem)
+        public async Task<IActionResult> UpdateMaintenanceProblem(int id, [FromBody] MaintenanceProblemResponse maintenanceProblem)
         {
             if (id != maintenanceProblem.Id)
             {
                 return BadRequest();
             }
 
-            await _maintenanceProblemRepository.UpdateMaintenanceProblemAsync(maintenanceProblem);
+            var problemToUpdate = await _maintenanceProblemRepository.GetMaintenanceProblemByIdAsync(id);
+            if (problemToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            MapToEntity(maintenanceProblem, problemToUpdate);
+
+            await _maintenanceProblemRepository.UpdateMaintenanceProblemAsync(problemToUpdate);
             return NoContent();
         }
 
@@ -117,31 +80,90 @@ namespace LUSC_e_Maintenance.Controllers
             return NoContent();
         }
 
-        private async Task SendEmail(string email, string subject, string body)
+        [Authorize(Roles = "Student")]
+        [HttpPost]
+        public async Task<ActionResult<MaintenanceProblemResponse>> AddMaintenanceProblem([FromBody] MaintenanceProblemRequest maintenanceProblemRequest)
         {
-            try
+            var userWebMail = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
+
+            if (maintenanceProblemRequest.Image != null && maintenanceProblemRequest.Image.Length > 0)
             {
-                MailMessage mail = new MailMessage();
-                SmtpClient smtpClient = new SmtpClient(_smtpSettings.Server, _smtpSettings.Port);
-                smtpClient.UseDefaultCredentials = false;
-                smtpClient.Credentials = new NetworkCredential(_smtpSettings.Username, _smtpSettings.Password);
-                smtpClient.EnableSsl = true;
+                var uploadResult = await _photoService.AddPhotoAsync(maintenanceProblemRequest.Image);
 
-                mail.From = new MailAddress("info@LUSCe-maintenance");
-                mail.To.Add(email);
-                mail.Subject = subject;
-                mail.Body = body;
-
-                smtpClient.Send(mail);
-
-                await Task.CompletedTask;
+                if (uploadResult.Error == null)
+                {
+                    maintenanceProblemRequest.ImageURL = uploadResult.SecureUri.AbsoluteUri;
+                }
+                else
+                {
+                    return BadRequest("Failed to upload photo.");
+                }
             }
-            catch (Exception ex)
+
+            var maintenanceProblem = new MaintenanceProblem
             {
-                // Log the exception
-                _logger.LogError(ex, "An error occurred while sending the email.");
-            }
+                WebMail = userWebMail,
+                ImageURL = maintenanceProblemRequest.ImageURL,
+                MaintenanceIssueId = maintenanceProblemRequest.MaintenanceIssueCategoryId,
+                Block = maintenanceProblemRequest.Block,
+                Hostel = maintenanceProblemRequest.Hostel,
+                RoomNumber = maintenanceProblemRequest.RoomNumber,
+                TimeAvailable = maintenanceProblemRequest.TimeAvailable,
+                DateComplaintMade = DateTime.Now,
+                IsResolved = false
+            };
+
+            await _maintenanceProblemRepository.AddMaintenanceProblemAsync(maintenanceProblem);
+
+            var response = MapToResponse(maintenanceProblem);
+            return CreatedAtAction(nameof(GetMaintenanceProblemById), new { id = maintenanceProblem.Id }, response);
         }
-      
+
+        private List<MaintenanceProblemResponse> MapToResponse(IEnumerable<MaintenanceProblem> problems)
+        {
+            return problems.Select(problem => new MaintenanceProblemResponse
+            {
+                Id = problem.Id,
+                WebMail = problem.WebMail,
+                ImageURL = problem.ImageURL,
+                MaintenanceIssueId = problem.MaintenanceIssueId,
+                Block = problem.Block,
+                Hostel = problem.Hostel,
+                RoomNumber = problem.RoomNumber,
+                TimeAvailable = problem.TimeAvailable,
+                DateComplaintMade = problem.DateComplaintMade,
+                IsResolved = problem.IsResolved
+            }).ToList();
+        }
+
+        private MaintenanceProblemResponse MapToResponse(MaintenanceProblem problem)
+        {
+            return new MaintenanceProblemResponse
+            {
+                Id = problem.Id,
+                WebMail = problem.WebMail,
+                ImageURL = problem.ImageURL,
+                MaintenanceIssueId = problem.MaintenanceIssueId,
+                Block = problem.Block,
+                Hostel = problem.Hostel,
+                RoomNumber = problem.RoomNumber,
+                TimeAvailable = problem.TimeAvailable,
+                DateComplaintMade = problem.DateComplaintMade,
+                IsResolved = problem.IsResolved
+            };
+        }
+
+        private void MapToEntity(MaintenanceProblemResponse response, MaintenanceProblem problem)
+        {
+            problem.WebMail = response.WebMail;
+            problem.ImageURL = response.ImageURL;
+            problem.MaintenanceIssueId = response.MaintenanceIssueId;
+            problem.Block = response.Block;
+            problem.Hostel = response.Hostel;
+            problem.RoomNumber = response.RoomNumber;
+            problem.TimeAvailable = response.TimeAvailable;
+            problem.DateComplaintMade = response.DateComplaintMade;
+            problem.IsResolved = response.IsResolved;
+        }
     }
 }

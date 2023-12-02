@@ -15,19 +15,33 @@ namespace LUSCMaintenance.Services
     {
         private readonly Cloudinary _cloudinary;
 
+        //public PhotoService(IOptions<CloudinarySettings> config)
+        //{
+        //    var account = new Account
+        //    {
+        //        Cloud = config.Value.CloudName,
+        //        ApiKey = config.Value.ApiKey,
+        //        ApiSecret = config.Value.ApiSecret
+        //    };
+
+        //    _cloudinary = new Cloudinary(account);
+        //}
+
         public PhotoService(IOptions<CloudinarySettings> config)
         {
-            var account = new Account
+            var acc = new Account
             {
-                Cloud = config.Value.CloudName,
-                ApiKey = config.Value.ApiKey,
-                ApiSecret = config.Value.ApiSecret
+                Cloud = "diajdiurh",
+                ApiKey = "245272367391712",
+                ApiSecret = "_yGJIVp_KnqjekgXytEqpdlSE_A"
             };
 
-            _cloudinary = new Cloudinary(account);
+            _cloudinary = new Cloudinary(acc);
+
+
         }
 
-        public async Task<ImageUploadResult> AddPhotoAsync(IFormFile file, int maxSizeInBytes)
+        public async Task<ImageUploadResult> AddPhotoAsync(IFormFile file)
         {
             var uploadResult = new ImageUploadResult();
 
@@ -36,13 +50,14 @@ namespace LUSCMaintenance.Services
                 return uploadResult;
             }
 
-            // Resize the image to the specified maximum size
+            // Resize the image to 300KB
+            var maxSizeInBytes = 300 * 1024; // 300KB
             using (var stream = new MemoryStream())
             {
                 await file.CopyToAsync(stream);
                 stream.Position = 0;
 
-                // Resize the image to maxSizeInBytes
+                // Resize the image to 300KB
                 var resizedImageStream = ResizeImage(stream, maxSizeInBytes);
 
                 // Upload the resized image to Cloudinary
@@ -68,7 +83,6 @@ namespace LUSCMaintenance.Services
 
         private Stream ResizeImage(Stream sourceStream, int targetSizeInBytes)
         {
-
             var image = Image.Load(sourceStream);
 
             var quality = 80; // Adjust quality as needed

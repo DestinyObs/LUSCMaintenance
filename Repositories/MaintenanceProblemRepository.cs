@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿// MaintenanceProblemRepository.cs
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using LUSCMaintenance.Data;
 using LUSCMaintenance.Interfaces;
@@ -9,46 +11,42 @@ namespace LUSCMaintenance.Repositories
 {
     public class MaintenanceProblemRepository : IMaintenanceProblemRepository
     {
-        private readonly LUSCMaintenanceDbContext _dbContext;
+        private readonly LUSCMaintenanceDbContext _context;
 
-        public MaintenanceProblemRepository(LUSCMaintenanceDbContext dbContext)
+        public MaintenanceProblemRepository(LUSCMaintenanceDbContext context)
         {
-            _dbContext = dbContext;
+            _context = context;
         }
 
         public async Task<IEnumerable<MaintenanceProblem>> GetMaintenanceProblemsAsync()
         {
-            return await _dbContext.MaintenanceProblems
-                .Include(mp => mp.MaintenanceIssue)
-                .ToListAsync();
+            return await _context.MaintenanceProblems.ToListAsync();
         }
 
         public async Task<MaintenanceProblem> GetMaintenanceProblemByIdAsync(int id)
         {
-            return await _dbContext.MaintenanceProblems
-                .Include(mp => mp.MaintenanceIssue)
-                .FirstOrDefaultAsync(mp => mp.Id == id);
+            return await _context.MaintenanceProblems.FindAsync(id);
         }
 
         public async Task AddMaintenanceProblemAsync(MaintenanceProblem maintenanceProblem)
         {
-            _dbContext.MaintenanceProblems.Add(maintenanceProblem);
-            await _dbContext.SaveChangesAsync();
+            _context.MaintenanceProblems.Add(maintenanceProblem);
+            await _context.SaveChangesAsync();
         }
 
         public async Task UpdateMaintenanceProblemAsync(MaintenanceProblem maintenanceProblem)
         {
-            _dbContext.MaintenanceProblems.Update(maintenanceProblem);
-            await _dbContext.SaveChangesAsync();
+            _context.MaintenanceProblems.Update(maintenanceProblem);
+            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteMaintenanceProblemAsync(int id)
         {
-            var maintenanceProblem = await _dbContext.MaintenanceProblems.FindAsync(id);
+            var maintenanceProblem = await _context.MaintenanceProblems.FindAsync(id);
             if (maintenanceProblem != null)
             {
-                _dbContext.MaintenanceProblems.Remove(maintenanceProblem);
-                await _dbContext.SaveChangesAsync();
+                _context.MaintenanceProblems.Remove(maintenanceProblem);
+                await _context.SaveChangesAsync();
             }
         }
     }

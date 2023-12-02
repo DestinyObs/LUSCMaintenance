@@ -1,4 +1,5 @@
-﻿using System;
+﻿// MaintenanceProblem.cs
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -9,7 +10,7 @@ namespace LUSCMaintenance.Models
         Daniel,
         Dorcas,
         Sarah,
-        Abigal,
+        Abigail,
         Deborah,
         Joseph,
         Isaac,
@@ -23,6 +24,7 @@ namespace LUSCMaintenance.Models
 
         [Required]
         public string WebMail { get; set; }
+
         public string ImageURL { get; set; }
 
         [Required]
@@ -43,7 +45,9 @@ namespace LUSCMaintenance.Models
 
         public DateTime TimeAvailable { get; set; }
 
-        public bool IsResolved { get; set; } = false;
+        [Required]
+        public DateTime DateComplaintMade { get; set; }
 
+        public bool IsResolved { get; set; } = false;
     }
 }
