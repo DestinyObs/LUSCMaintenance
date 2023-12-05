@@ -287,7 +287,7 @@ namespace LUSCMaintenance.Controllers
         private async Task SendPasswordResetEmail(string email, string resetToken)
         {
             // Construct email body with reset link
-            var resetLink = $"https://localhost:3000/reset-password?token={resetToken}";
+            var resetLink = $"https://localhost:5173/reset-password?token={resetToken}";
             var body = $"Click the following link to reset your password: {resetLink}";
 
             // Send the email (you can use your existing email sending logic)
@@ -330,7 +330,7 @@ namespace LUSCMaintenance.Controllers
             var encryptedUserId = ProtectData(userId);
 
             // Construct email body with encrypted verification link
-            var verificationLink = $"https://localhost:3000/verify-email?userId={encryptedUserId}&token={verificationToken}";
+            var verificationLink = $"https://localhost:5173/verify-email?userId={encryptedUserId}&token={verificationToken}";
             return $"Click the following link to verify your email: {verificationLink}";
         }
 

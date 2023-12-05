@@ -4,6 +4,7 @@ using LUSCMaintenance.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LUSC_e_Maintenance.Migrations
 {
     [DbContext(typeof(LUSCMaintenanceDbContext))]
-    partial class LUSCMaintenanceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231205031030_rt")]
+    partial class rt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -266,14 +269,14 @@ namespace LUSC_e_Maintenance.Migrations
                         {
                             Id = 9,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "ccbe6af6-2721-49c0-b8ed-9e5c3cd2c4f4",
+                            ConcurrencyStamp = "9e14b23a-e06d-4c86-9fa9-bca8747517fa",
                             Email = "Admin@lmu.edu.ng",
                             EmailConfirmed = true,
                             IsVerified = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@LMU.EDU.NG",
                             NormalizedUserName = "ADMIN@LMU.EDU.NG",
-                            PasswordHash = "$2a$10$FBIfI0XvOaB1Bsdg5NiAcuIclpJ0q8TAwA1fmPRmd13yPJPEsfmcC",
+                            PasswordHash = "$2a$10$Hd.E/BuwjR3T6OVcnfC2Vu5I4wS.8JVTh0IvdTCUtD1vdVFg5sMOW",
                             PhoneNumberConfirmed = false,
                             Roles = "Admin",
                             SecurityStamp = "",

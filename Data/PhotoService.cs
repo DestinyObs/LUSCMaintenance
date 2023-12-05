@@ -92,7 +92,7 @@ namespace LUSCMaintenance.Services
             do
             {
                 image.Save(resultStream, targetFormat);
-                quality -= 5;
+                quality -= 70;
             }
             while (resultStream.Length > targetSizeInBytes && quality > 0);
 

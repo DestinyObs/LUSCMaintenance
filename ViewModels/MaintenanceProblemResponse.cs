@@ -9,7 +9,7 @@ namespace LUSCMaintenance.Controllers
         public string WebMail { get; set; }
         public string ImageURL { get; set; }
         public int MaintenanceIssueId { get; set; }
-        public char Block { get; set; }
+        public String Block { get; set; }
         public Hostel Hostel { get; set; }
         public int RoomNumber { get; set; }
         public DateTime TimeAvailable { get; set; }

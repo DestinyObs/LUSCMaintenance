@@ -3,6 +3,7 @@ using LUSCMaintenance.Helpers;
 using LUSCMaintenance.Interfaces;
 using LUSCMaintenance.Models;
 using LUSCMaintenance.Repositories;
+using LUSCMaintenance.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -87,6 +88,7 @@ namespace LUSC_e_Maintenance
             builder.Services.AddScoped<IMaintenanceIssueCategoryRepository, MaintenanceIssueCategoryRepository>();
             builder.Services.AddScoped<IMaintenanceIssueRepository, MaintenanceIssueRepository>();
             builder.Services.AddScoped<IMaintenanceProblemRepository, MaintenanceProblemRepository>();
+            builder.Services.AddScoped<IPhotoService, PhotoService>();
 
 
             builder.Services.AddControllers();

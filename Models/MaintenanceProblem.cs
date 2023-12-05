@@ -24,7 +24,7 @@ namespace LUSCMaintenance.Models
         [Required]
         public string WebMail { get; set; }
 
-        public string ImageURL { get; set; }
+        public string? ImageURL { get; set; }
 
         [Required]
         public int MaintenanceIssueId { get; set; }
@@ -33,7 +33,7 @@ namespace LUSCMaintenance.Models
         public MaintenanceIssue MaintenanceIssue { get; set; }
 
         [MaxLength(1)] // Block is a single letter
-        public char Block { get; set; }
+        public string Block { get; set; }
 
         [EnumDataType(typeof(Hostel))]
         public Hostel Hostel { get; set; }

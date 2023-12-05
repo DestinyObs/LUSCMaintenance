@@ -10,9 +10,9 @@ using LUSCMaintenance.Services;
 using LUSCMaintenance.Controllers;
 using System.Security.Claims;
 
-namespace LUSC_e_Maintenance.Controllers
+namespace LUSCMaintenance.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class MaintenanceProblemController : ControllerBase
@@ -80,11 +80,13 @@ namespace LUSC_e_Maintenance.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = "Student")]
+        //[Authorize(Roles = "Student")]
         [HttpPost]
-        public async Task<ActionResult<MaintenanceProblemResponse>> AddMaintenanceProblem([FromBody] MaintenanceProblemRequest maintenanceProblemRequest)
+        public async Task<ActionResult<MaintenanceProblemResponse>> AddMaintenanceProblem([FromForm] MaintenanceProblemRequest maintenanceProblemRequest)
         {
             var userWebMail = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
+
+            string imageUrl = null;
 
             if (maintenanceProblemRequest.Image != null && maintenanceProblemRequest.Image.Length > 0)
             {
@@ -92,7 +94,7 @@ namespace LUSC_e_Maintenance.Controllers
 
                 if (uploadResult.Error == null)
                 {
-                    maintenanceProblemRequest.ImageURL = uploadResult.SecureUri.AbsoluteUri;
+                    imageUrl = uploadResult.SecureUri.AbsoluteUri;
                 }
                 else
                 {
@@ -103,7 +105,7 @@ namespace LUSC_e_Maintenance.Controllers
             var maintenanceProblem = new MaintenanceProblem
             {
                 WebMail = userWebMail,
-                ImageURL = maintenanceProblemRequest.ImageURL,
+                ImageURL = imageUrl, 
                 MaintenanceIssueId = maintenanceProblemRequest.MaintenanceIssueCategoryId,
                 Block = maintenanceProblemRequest.Block,
                 Hostel = maintenanceProblemRequest.Hostel,
@@ -118,6 +120,8 @@ namespace LUSC_e_Maintenance.Controllers
             var response = MapToResponse(maintenanceProblem);
             return CreatedAtAction(nameof(GetMaintenanceProblemById), new { id = maintenanceProblem.Id }, response);
         }
+
+
 
         private List<MaintenanceProblemResponse> MapToResponse(IEnumerable<MaintenanceProblem> problems)
         {
