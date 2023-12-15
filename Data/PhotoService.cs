@@ -85,7 +85,7 @@ namespace LUSCMaintenance.Services
         {
             var image = Image.Load(sourceStream);
 
-            var quality = 80; // Adjust quality as needed
+            var quality = 30 ; // Adjust quality as needed
             var targetFormat = new JpegEncoder { Quality = quality };
             var resultStream = new MemoryStream();
 

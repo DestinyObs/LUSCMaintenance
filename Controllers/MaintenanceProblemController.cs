@@ -12,7 +12,7 @@ using System.Security.Claims;
 
 namespace LUSCMaintenance.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class MaintenanceProblemController : ControllerBase
@@ -80,7 +80,7 @@ namespace LUSCMaintenance.Controllers
             return NoContent();
         }
 
-        //[Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student")]
         [HttpPost]
         public async Task<ActionResult<MaintenanceProblemResponse>> AddMaintenanceProblem([FromForm] MaintenanceProblemRequest maintenanceProblemRequest)
         {
