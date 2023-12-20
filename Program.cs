@@ -129,6 +129,8 @@ namespace LUSC_e_Maintenance
 
             var app = builder.Build();
 
+            app.Urls.Add("http://196.13.111.164:5000"); //Fife added this
+
             //// Configure the HTTP request pipeline.
             //if (app.Environment.IsDevelopment())
             //{
