@@ -13,7 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 
-namespace LUSC_e_Maintenance
+namespace LUSCMaintenance
 {
     public class Program
     {
