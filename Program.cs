@@ -21,12 +21,13 @@ namespace LUSCMaintenance
         {
             var builder = WebApplication.CreateBuilder(args);
 
+          
             // Add services to the container.
             builder.Services.AddDbContext<LUSCMaintenanceDbContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("MyString"));
+                options.UseMySql(builder.Configuration.GetConnectionString("MyString"), ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("MyString")));
             });
-           
+
             builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
             {
                 options.Password.RequireDigit = true;
