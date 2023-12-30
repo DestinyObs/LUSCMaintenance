@@ -1,3 +1,4 @@
+using DotNetEnv;
 using LUSCMaintenance.Data;
 using LUSCMaintenance.Helpers;
 using LUSCMaintenance.Interfaces;
@@ -19,10 +20,17 @@ namespace LUSCMaintenance
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
-
           
-            // Add services to the container.
+            var builder = WebApplication.CreateBuilder(args);
+            //DotNetEnv.Env.Load();
+            //// Build the configuration from the appsettings.json file
+            //var configuration = new ConfigurationBuilder()
+            //    .SetBasePath(Directory.GetCurrentDirectory())
+            //    .AddJsonFile("appsettings.json", false)
+            //    .Build();
+
+            //builder.Configuration.AddUserSecrets<Program>();
+
             builder.Services.AddDbContext<LUSCMaintenanceDbContext>(options =>
             {
                 options.UseMySql(builder.Configuration.GetConnectionString("MyString"), ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("MyString")));
@@ -140,12 +148,6 @@ namespace LUSCMaintenance
             app.Urls.Add("https://196.13.111.164:443");//using the for the server IP
             app.Urls.Add("https://localhost:5024");//still my system local Ip 
 
-            //// Configure the HTTP request pipeline.
-            //if (app.Environment.IsDevelopment())
-            //{
-            //    app.UseSwagger();
-            //    app.UseSwaggerUI();
-            //}
             app.UseSwagger();
             app.UseSwaggerUI();
 
