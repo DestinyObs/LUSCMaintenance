@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace LUSCMaintenance.Controllers
 {
@@ -30,6 +31,7 @@ namespace LUSCMaintenance.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
         private readonly UserManager<User> _userManager;
+        private readonly IDataProtectionProvider _provider;
         private readonly ILogger<UserController> _logger;
         private readonly SmtpSettings _smtpSettings;
 
@@ -39,6 +41,7 @@ namespace LUSCMaintenance.Controllers
             IConfiguration configuration,
             UserManager<User> userManager,
             IOptions<SmtpSettings> smtpSettings,
+            IDataProtectionProvider provider,
             ILogger<UserController> logger)
 
         {
@@ -46,6 +49,7 @@ namespace LUSCMaintenance.Controllers
             _userRepository = userRepository;
             _configuration = configuration;
             _userManager = userManager;
+            _provider = provider;
             _logger = logger;
             _smtpSettings = smtpSettings.Value;
         }
@@ -334,14 +338,17 @@ namespace LUSCMaintenance.Controllers
             return $"Click the following link to verify your email: {verificationLink}";
         }
 
-        // Encrypt data using ProtectedData
+        // Encrypt data using IDataProtector
         private string ProtectData(string data)
         {
             // Convert data to bytes
             byte[] bytes = Encoding.UTF8.GetBytes(data);
 
+            // Create a data protector with a purpose string
+            IDataProtector protector = _provider.CreateProtector("LUSCMaintenance.UserController.EmailVerification");
+
             // Encrypt the data
-            byte[] encryptedBytes = ProtectedData.Protect(bytes, optionalEntropy: null, scope: DataProtectionScope.CurrentUser);
+            byte[] encryptedBytes = protector.Protect(bytes);
 
             // Convert encrypted bytes back to string
             return Convert.ToBase64String(encryptedBytes);

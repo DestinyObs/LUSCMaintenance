@@ -138,15 +138,14 @@ namespace LUSCMaintenance
 
             var app = builder.Build();
 
-            // migrate any database changes on startup (includes initial db creation)
-            using (var scope = app.Services.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<LUSCMaintenanceDbContext>();
-                dbContext.Database.Migrate();
-            }
+            //// migrate any database changes on startup (includes initial db creation)
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var dbContext = scope.ServiceProvider.GetRequiredService<LUSCMaintenanceDbContext>();
+            //    dbContext.Database.Migrate();
+            //}
 
-            app.Urls.Add("https://196.13.111.164:443");//using the for the server IP
-            app.Urls.Add("https://localhost:5024");//still my system local Ip 
+            //app.Urls.Add("https://196.13.111.164:5001");//using the for the server IP
 
             app.UseSwagger();
             app.UseSwaggerUI();
