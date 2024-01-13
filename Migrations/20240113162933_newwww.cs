@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace LUSCMaintenance.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class newwww : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -322,7 +322,7 @@ namespace LUSCMaintenance.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "IsVerified", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "Roles", "SecurityStamp", "TwoFactorEnabled", "UserName", "UserVerificationId", "WebMail" },
-                values: new object[] { 9, 0, "727f29fe-8af2-4954-8b29-1eaeeb22b3e2", "Admin@lmu.edu.ng", true, true, false, null, "ADMIN@LMU.EDU.NG", "ADMIN@LMU.EDU.NG", "$2a$10$Vqle/UFTpmqeQwaihGqIBuMF7YsElGQzZKQ5P98MJenIBn/jamlPS", null, false, "Admin", "", false, "Admin@lmu.edu.ng", null, "Admin@lmu.edu.ng" });
+                values: new object[] { 9, 0, "f13b257e-7c3c-4ac7-b455-1e66092cdcaa", "Admin@lmu.edu.ng", true, true, false, null, "ADMIN@LMU.EDU.NG", "ADMIN@LMU.EDU.NG", "$2a$10$75wcChJAtADBspNHwlnEguGJh4DujpQaS5wFv7APZ51vsIpnhPetW", null, false, "Admin", "", false, "Admin@lmu.edu.ng", null, "Admin@lmu.edu.ng" });
 
             migrationBuilder.InsertData(
                 table: "MaintenanceIssueCategories",

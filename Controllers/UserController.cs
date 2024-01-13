@@ -115,12 +115,53 @@ namespace LUSCMaintenance.Controllers
                 await SendEmail(newUser.WebMail, "Account Verification", GetVerificationEmailBody(newUser.Id.ToString(), verificationToken));
 
                 // Return a success message
-                return Ok("Registration successful. Check your email for verification.");
+                return CreatedAtAction(nameof(Register), new { Message = "Registration successful. Check your email for verification." });
             }
             catch (Exception ex)
             {
                 // Log the exception
                 _logger.LogError(ex, "An error occurred while processing the registration request.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing the request.");
+            }
+        }
+
+
+        [HttpGet("verify-email")]
+        public async Task<IActionResult> VerifyEmail([FromQuery] string userId, [FromQuery] string token)
+        {
+            try
+            {
+                // Decrypt user ID
+                var decryptedUserId = UnprotectData(userId);
+
+                // Retrieve the UserVerification record
+                var userVerification = await _userRepository.GetUserVerificationAsync(decryptedUserId, token);
+
+                if (userVerification == null || userVerification.IsVerified)
+                {
+                    // Invalid or already verified token
+                    return BadRequest("Invalid verification token or user already verified.");
+                }
+
+                // Check if the verification token has expired
+                var expirationTime = DateTime.UtcNow.AddMinutes(-10); // Adjust as needed
+                if (userVerification.CreatedAt < expirationTime)
+                {
+                    return BadRequest("Verification token has expired. Please request a new one.");
+                }
+
+                // Verify the token and update user status
+                userVerification.IsVerified = true;
+                await _userRepository.UpdateUserVerificationAsync(userVerification);
+
+                // Optionally, you can log the user in automatically after verification if needed.
+
+                return Ok(new { Message = "Email verification successful. You can now log in." });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                _logger.LogError(ex, "An error occurred while processing the email verification request.");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing the request.");
             }
         }
@@ -292,7 +333,8 @@ namespace LUSCMaintenance.Controllers
         {
             // Construct email body with reset link
             var resetLink = $"https://localhost:5173/reset-password?token={resetToken}";
-            var body = $"Click the following link to reset your password: {resetLink}";
+
+            var body = $"Click the following link to reset your password: {resetLink} \n Note that the code expires after 10 minutes ";
 
             // Send the email (you can use your existing email sending logic)
             await SendEmail(email, "Password Reset", body);
@@ -352,6 +394,23 @@ namespace LUSCMaintenance.Controllers
 
             // Convert encrypted bytes back to string
             return Convert.ToBase64String(encryptedBytes);
+        }
+
+
+        // Decrypt data using IDataProtector
+        private string UnprotectData(string encryptedData)
+        {
+            // Convert encrypted string to bytes
+            byte[] encryptedBytes = Convert.FromBase64String(encryptedData);
+
+            // Create a data protector with the same purpose string
+            IDataProtector protector = _provider.CreateProtector("LUSCMaintenance.UserController.EmailVerification");
+
+            // Decrypt the data
+            byte[] decryptedBytes = protector.Unprotect(encryptedBytes);
+
+            // Convert decrypted bytes back to original data
+            return Encoding.UTF8.GetString(decryptedBytes);
         }
 
         private async Task SendEmail(string email, string subject, string body)

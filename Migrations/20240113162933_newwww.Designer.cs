@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LUSCMaintenance.Migrations
 {
     [DbContext(typeof(LUSCMaintenanceDbContext))]
-    [Migration("20231229195812_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240113162933_newwww")]
+    partial class newwww
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -254,14 +254,14 @@ namespace LUSCMaintenance.Migrations
                         {
                             Id = 9,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "727f29fe-8af2-4954-8b29-1eaeeb22b3e2",
+                            ConcurrencyStamp = "f13b257e-7c3c-4ac7-b455-1e66092cdcaa",
                             Email = "Admin@lmu.edu.ng",
                             EmailConfirmed = true,
                             IsVerified = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@LMU.EDU.NG",
                             NormalizedUserName = "ADMIN@LMU.EDU.NG",
-                            PasswordHash = "$2a$10$Vqle/UFTpmqeQwaihGqIBuMF7YsElGQzZKQ5P98MJenIBn/jamlPS",
+                            PasswordHash = "$2a$10$75wcChJAtADBspNHwlnEguGJh4DujpQaS5wFv7APZ51vsIpnhPetW",
                             PhoneNumberConfirmed = false,
                             Roles = "Admin",
                             SecurityStamp = "",

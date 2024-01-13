@@ -71,7 +71,7 @@ namespace LUSCMaintenance.Data
                 }
             );
             modelBuilder.Entity<IdentityUserRole<int>>().HasData(
-                new IdentityUserRole<int> { RoleId = 1, UserId = 1 }
+                new IdentityUserRole<int> { RoleId = 1, UserId = 9}
             );
 
 

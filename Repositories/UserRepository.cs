@@ -53,10 +53,14 @@ namespace LUSCMaintenance.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<UserVerification> GetUserVerificationAsync(string userId)
-        {
+        public async Task<UserVerification> GetUserVerificationAsync(string userId, string token)
+        { 
+            // Set the expiration time (10 minutes)
+            var expirationTime = DateTime.UtcNow.AddMinutes(-10);
+
             return await _dbContext.UserVerifications
-                .FirstOrDefaultAsync(uv => uv.UserId == userId);
+                .FirstOrDefaultAsync(uv => uv.UserId == userId && uv.VerificationToken == token && !uv.IsVerified && uv.CreatedAt > expirationTime);
+
         }
 
         public async Task CreateUserVerificationAsync(UserVerification userVerification)
