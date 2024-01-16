@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace LUSCMaintenance.Migrations
 {
     /// <inheritdoc />
-    public partial class newwww : Migration
+    public partial class onetwo : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -317,12 +317,20 @@ namespace LUSCMaintenance.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { 1, null, "Admin", "ADMIN" });
+                values: new object[,]
+                {
+                    { 1, null, "Admin", "ADMIN" },
+                    { 2, null, "Student", "STUDENT" }
+                });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "IsVerified", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "Roles", "SecurityStamp", "TwoFactorEnabled", "UserName", "UserVerificationId", "WebMail" },
-                values: new object[] { 9, 0, "f13b257e-7c3c-4ac7-b455-1e66092cdcaa", "Admin@lmu.edu.ng", true, true, false, null, "ADMIN@LMU.EDU.NG", "ADMIN@LMU.EDU.NG", "$2a$10$75wcChJAtADBspNHwlnEguGJh4DujpQaS5wFv7APZ51vsIpnhPetW", null, false, "Admin", "", false, "Admin@lmu.edu.ng", null, "Admin@lmu.edu.ng" });
+                values: new object[,]
+                {
+                    { 1, 0, "e9e27d4c-a707-476b-a971-bdcc77bf5d1b", "hor@lmu.edu.ng", true, true, false, null, "HOR@LMU.EDU.NG", "HOR@LMU.EDU.NG", "$2a$10$LONRDeeIS/7M7JUfVPv2qOkqDd5kkCi/V83q0eoFwqS0dHhWkw/Uy", null, false, "Admin", "", false, "HOR", null, "hor@lmu.edu.ng" },
+                    { 2, 0, "8f5dceb7-59a6-4b71-8099-3525bb5e1952", "vcm@lmu.edu.ng", true, true, false, null, "VCM@LMU.EDU.NG", "VCM@LMU.EDU.NG", "$2a$10$LONRDeeIS/7M7JUfVPv2qOs/UYcRmh4AipIijKbTvZCxHyxl8y1/G", null, false, "Admin", "", false, "VCM", null, "vcm@lmu.edu.ng" }
+                });
 
             migrationBuilder.InsertData(
                 table: "MaintenanceIssueCategories",
@@ -330,15 +338,19 @@ namespace LUSCMaintenance.Migrations
                 values: new object[,]
                 {
                     { 1, "Electrical Maintenance" },
-                    { 2, "Carpentry" },
-                    { 3, "Plumbing" },
-                    { 4, "Others" }
+                    { 2, "Carpentry Maintenance" },
+                    { 3, "Plumbing Maintenance" },
+                    { 4, "Others Maintenance" }
                 });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
                 columns: new[] { "RoleId", "UserId" },
-                values: new object[] { 1, 9 });
+                values: new object[,]
+                {
+                    { 1, 1 },
+                    { 1, 2 }
+                });
 
             migrationBuilder.InsertData(
                 table: "MaintenanceIssues",
@@ -346,8 +358,41 @@ namespace LUSCMaintenance.Migrations
                 values: new object[,]
                 {
                     { 1, "Faulty Socket", 1 },
-                    { 2, "Broken Door", 2 },
-                    { 3, "Bad Window", 4 }
+                    { 2, "Broken Door Handle", 2 },
+                    { 3, "Bad Window", 4 },
+                    { 4, "Broken Door", 2 },
+                    { 5, "Faulty Switch", 1 },
+                    { 6, "Faulty Ceiling Fan", 1 },
+                    { 7, "Bad Ceiling Fan Blade", 1 },
+                    { 8, "Faulty Fan Regulator", 1 },
+                    { 9, "Faulty Bulbs(ROOM)", 1 },
+                    { 10, "Fault Bulbs(LOBBY)", 1 },
+                    { 11, "DSTV Decoder", 1 },
+                    { 12, "Security Lights", 1 },
+                    { 13, "Room Keys", 2 },
+                    { 14, "Wardrobe", 2 },
+                    { 15, "Wardrobe Catcher", 2 },
+                    { 16, "Reading Table", 2 },
+                    { 17, "Faulty Distribution Box", 1 },
+                    { 18, "Reading Chair", 2 },
+                    { 19, "Metal Bunk", 4 },
+                    { 20, "Window Net", 4 },
+                    { 21, "Curtain Railing", 4 },
+                    { 22, "Ceiling PVC", 1 },
+                    { 23, "Wardrobe Handle", 2 },
+                    { 24, "Toilet Door", 2 },
+                    { 25, "Water Reservoir Drum", 3 },
+                    { 26, "Wash Hand Basin", 3 },
+                    { 27, "Taps", 3 },
+                    { 28, "Water Closet", 3 },
+                    { 29, "Washing Bowl", 3 },
+                    { 30, "Washing Bowl", 3 },
+                    { 31, "Shower ", 3 },
+                    { 32, "Extractor Fan", 3 },
+                    { 33, "Cloth lines", 4 },
+                    { 34, "Waste Bin", 4 },
+                    { 35, "Duct Cover", 4 },
+                    { 36, "Door Frame", 2 }
                 });
 
             migrationBuilder.CreateIndex(

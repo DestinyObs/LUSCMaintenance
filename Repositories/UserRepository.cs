@@ -13,6 +13,7 @@ namespace LUSCMaintenance.Repositories
         public UserRepository(LUSCMaintenanceDbContext dbContext)
         {
             _dbContext = dbContext;
+
         }
 
 
@@ -54,14 +55,15 @@ namespace LUSCMaintenance.Repositories
         }
 
         public async Task<UserVerification> GetUserVerificationAsync(string userId, string token)
-        { 
-            // Set the expiration time (10 minutes)
+        {
             var expirationTime = DateTime.UtcNow.AddMinutes(-10);
 
-            return await _dbContext.UserVerifications
+            var userVerification = await _dbContext.UserVerifications
                 .FirstOrDefaultAsync(uv => uv.UserId == userId && uv.VerificationToken == token && !uv.IsVerified && uv.CreatedAt > expirationTime);
 
+            return userVerification;
         }
+
 
         public async Task CreateUserVerificationAsync(UserVerification userVerification)
         {
@@ -71,9 +73,10 @@ namespace LUSCMaintenance.Repositories
 
         public async Task UpdateUserVerificationAsync(UserVerification userVerification)
         {
-            _dbContext.UserVerifications.Update(userVerification);
+            _dbContext.Entry(userVerification).State = EntityState.Modified;
             await _dbContext.SaveChangesAsync();
         }
+
 
         public async Task UpdatePasswordResetAsync(PasswordReset passwordReset)
         {

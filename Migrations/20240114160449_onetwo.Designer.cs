@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LUSCMaintenance.Migrations
 {
     [DbContext(typeof(LUSCMaintenanceDbContext))]
-    [Migration("20240113162933_newwww")]
-    partial class newwww
+    [Migration("20240114160449_onetwo")]
+    partial class onetwo
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -51,7 +51,7 @@ namespace LUSCMaintenance.Migrations
                         new
                         {
                             Id = 2,
-                            Description = "Broken Door",
+                            Description = "Broken Door Handle",
                             MaintenanceIssueCategoryId = 2
                         },
                         new
@@ -59,6 +59,204 @@ namespace LUSCMaintenance.Migrations
                             Id = 3,
                             Description = "Bad Window",
                             MaintenanceIssueCategoryId = 4
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Description = "Broken Door",
+                            MaintenanceIssueCategoryId = 2
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Description = "Faulty Switch",
+                            MaintenanceIssueCategoryId = 1
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Description = "Faulty Ceiling Fan",
+                            MaintenanceIssueCategoryId = 1
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Description = "Bad Ceiling Fan Blade",
+                            MaintenanceIssueCategoryId = 1
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Description = "Faulty Fan Regulator",
+                            MaintenanceIssueCategoryId = 1
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Description = "Faulty Bulbs(ROOM)",
+                            MaintenanceIssueCategoryId = 1
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Description = "Fault Bulbs(LOBBY)",
+                            MaintenanceIssueCategoryId = 1
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Description = "DSTV Decoder",
+                            MaintenanceIssueCategoryId = 1
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Description = "Security Lights",
+                            MaintenanceIssueCategoryId = 1
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Description = "Room Keys",
+                            MaintenanceIssueCategoryId = 2
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Description = "Wardrobe",
+                            MaintenanceIssueCategoryId = 2
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Description = "Wardrobe Catcher",
+                            MaintenanceIssueCategoryId = 2
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Description = "Reading Table",
+                            MaintenanceIssueCategoryId = 2
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Description = "Faulty Distribution Box",
+                            MaintenanceIssueCategoryId = 1
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Description = "Reading Chair",
+                            MaintenanceIssueCategoryId = 2
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Description = "Metal Bunk",
+                            MaintenanceIssueCategoryId = 4
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Description = "Window Net",
+                            MaintenanceIssueCategoryId = 4
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Description = "Curtain Railing",
+                            MaintenanceIssueCategoryId = 4
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Description = "Ceiling PVC",
+                            MaintenanceIssueCategoryId = 1
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Description = "Wardrobe Handle",
+                            MaintenanceIssueCategoryId = 2
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Description = "Toilet Door",
+                            MaintenanceIssueCategoryId = 2
+                        },
+                        new
+                        {
+                            Id = 25,
+                            Description = "Water Reservoir Drum",
+                            MaintenanceIssueCategoryId = 3
+                        },
+                        new
+                        {
+                            Id = 26,
+                            Description = "Wash Hand Basin",
+                            MaintenanceIssueCategoryId = 3
+                        },
+                        new
+                        {
+                            Id = 27,
+                            Description = "Taps",
+                            MaintenanceIssueCategoryId = 3
+                        },
+                        new
+                        {
+                            Id = 28,
+                            Description = "Water Closet",
+                            MaintenanceIssueCategoryId = 3
+                        },
+                        new
+                        {
+                            Id = 29,
+                            Description = "Washing Bowl",
+                            MaintenanceIssueCategoryId = 3
+                        },
+                        new
+                        {
+                            Id = 30,
+                            Description = "Washing Bowl",
+                            MaintenanceIssueCategoryId = 3
+                        },
+                        new
+                        {
+                            Id = 31,
+                            Description = "Shower ",
+                            MaintenanceIssueCategoryId = 3
+                        },
+                        new
+                        {
+                            Id = 32,
+                            Description = "Extractor Fan",
+                            MaintenanceIssueCategoryId = 3
+                        },
+                        new
+                        {
+                            Id = 33,
+                            Description = "Cloth lines",
+                            MaintenanceIssueCategoryId = 4
+                        },
+                        new
+                        {
+                            Id = 34,
+                            Description = "Waste Bin",
+                            MaintenanceIssueCategoryId = 4
+                        },
+                        new
+                        {
+                            Id = 35,
+                            Description = "Duct Cover",
+                            MaintenanceIssueCategoryId = 4
+                        },
+                        new
+                        {
+                            Id = 36,
+                            Description = "Door Frame",
+                            MaintenanceIssueCategoryId = 2
                         });
                 });
 
@@ -85,17 +283,17 @@ namespace LUSCMaintenance.Migrations
                         new
                         {
                             Id = 2,
-                            Name = "Carpentry"
+                            Name = "Carpentry Maintenance"
                         },
                         new
                         {
                             Id = 3,
-                            Name = "Plumbing"
+                            Name = "Plumbing Maintenance"
                         },
                         new
                         {
                             Id = 4,
-                            Name = "Others"
+                            Name = "Others Maintenance"
                         });
                 });
 
@@ -252,22 +450,41 @@ namespace LUSCMaintenance.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 9,
+                            Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "f13b257e-7c3c-4ac7-b455-1e66092cdcaa",
-                            Email = "Admin@lmu.edu.ng",
+                            ConcurrencyStamp = "e9e27d4c-a707-476b-a971-bdcc77bf5d1b",
+                            Email = "hor@lmu.edu.ng",
                             EmailConfirmed = true,
                             IsVerified = true,
                             LockoutEnabled = false,
-                            NormalizedEmail = "ADMIN@LMU.EDU.NG",
-                            NormalizedUserName = "ADMIN@LMU.EDU.NG",
-                            PasswordHash = "$2a$10$75wcChJAtADBspNHwlnEguGJh4DujpQaS5wFv7APZ51vsIpnhPetW",
+                            NormalizedEmail = "HOR@LMU.EDU.NG",
+                            NormalizedUserName = "HOR@LMU.EDU.NG",
+                            PasswordHash = "$2a$10$LONRDeeIS/7M7JUfVPv2qOkqDd5kkCi/V83q0eoFwqS0dHhWkw/Uy",
                             PhoneNumberConfirmed = false,
                             Roles = "Admin",
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
-                            UserName = "Admin@lmu.edu.ng",
-                            WebMail = "Admin@lmu.edu.ng"
+                            UserName = "HOR",
+                            WebMail = "hor@lmu.edu.ng"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "8f5dceb7-59a6-4b71-8099-3525bb5e1952",
+                            Email = "vcm@lmu.edu.ng",
+                            EmailConfirmed = true,
+                            IsVerified = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "VCM@LMU.EDU.NG",
+                            NormalizedUserName = "VCM@LMU.EDU.NG",
+                            PasswordHash = "$2a$10$LONRDeeIS/7M7JUfVPv2qOs/UYcRmh4AipIijKbTvZCxHyxl8y1/G",
+                            PhoneNumberConfirmed = false,
+                            Roles = "Admin",
+                            SecurityStamp = "",
+                            TwoFactorEnabled = false,
+                            UserName = "VCM",
+                            WebMail = "vcm@lmu.edu.ng"
                         });
                 });
 
@@ -328,6 +545,12 @@ namespace LUSCMaintenance.Migrations
                             Id = 1,
                             Name = "Admin",
                             NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Student",
+                            NormalizedName = "STUDENT"
                         });
                 });
 
@@ -413,7 +636,12 @@ namespace LUSCMaintenance.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = 9,
+                            UserId = 1,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            UserId = 2,
                             RoleId = 1
                         });
                 });

@@ -22,14 +22,6 @@ namespace LUSCMaintenance
         {
           
             var builder = WebApplication.CreateBuilder(args);
-            //DotNetEnv.Env.Load();
-            //// Build the configuration from the appsettings.json file
-            //var configuration = new ConfigurationBuilder()
-            //    .SetBasePath(Directory.GetCurrentDirectory())
-            //    .AddJsonFile("appsettings.json", false)
-            //    .Build();
-
-            //builder.Configuration.AddUserSecrets<Program>();
 
             builder.Services.AddDbContext<LUSCMaintenanceDbContext>(options =>
             {
@@ -138,7 +130,7 @@ namespace LUSCMaintenance
 
             var app = builder.Build();
 
-            //// migrate any database changes on startup (includes initial db creation)
+            ////migrate any database changes on startup(includes initial db creation)
             //using (var scope = app.Services.CreateScope())
             //{
             //    var dbContext = scope.ServiceProvider.GetRequiredService<LUSCMaintenanceDbContext>();

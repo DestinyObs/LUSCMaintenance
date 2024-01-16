@@ -20,6 +20,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 
 namespace LUSCMaintenance.Controllers
 {
@@ -31,6 +33,7 @@ namespace LUSCMaintenance.Controllers
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
         private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly IDataProtectionProvider _provider;
         private readonly ILogger<UserController> _logger;
         private readonly SmtpSettings _smtpSettings;
@@ -40,6 +43,7 @@ namespace LUSCMaintenance.Controllers
             IUserRepository userRepository, 
             IConfiguration configuration,
             UserManager<User> userManager,
+            SignInManager<User> signInManager,
             IOptions<SmtpSettings> smtpSettings,
             IDataProtectionProvider provider,
             ILogger<UserController> logger)
@@ -49,6 +53,7 @@ namespace LUSCMaintenance.Controllers
             _userRepository = userRepository;
             _configuration = configuration;
             _userManager = userManager;
+            _signInManager = signInManager;
             _provider = provider;
             _logger = logger;
             _smtpSettings = smtpSettings.Value;
@@ -112,59 +117,89 @@ namespace LUSCMaintenance.Controllers
                 await _userRepository.CreateUserVerificationAsync(userVerification);
 
                 // Send verification email
-                await SendEmail(newUser.WebMail, "Account Verification", GetVerificationEmailBody(newUser.Id.ToString(), verificationToken));
+                //await SendEmail(newUser.WebMail, "Account Verification", GetVerificationEmailBody(newUser.Id.ToString(), verificationToken));
 
-                // Return a success message
-                return CreatedAtAction(nameof(Register), new { Message = "Registration successful. Check your email for verification." });
+                // Return a success message with a 201 Created status code
+                //return CreatedAtAction(nameof(Register), new { Message = "Registration successful. Check your email for verification." });
+
+                return Ok(new { UserId = newUser.Id.ToString(), VerificationToken = verificationToken });
+
             }
             catch (Exception ex)
             {
                 // Log the exception
                 _logger.LogError(ex, "An error occurred while processing the registration request.");
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing the request.");
+                // Return a generic error message with a 500 Internal Server Error status code
+                return StatusCode(StatusCodes.Status500InternalServerError, new { StatusCode = 500, Message = "An error occurred while processing the request." });
+            }
+        }
+        [HttpPost("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            try
+            {
+                // Get the user making the request
+                var user = await _userManager.GetUserAsync(User);
+
+                if (user == null)
+                {
+                    return NotFound(new { StatusCode = 404, Message = "User not found" });
+                }
+
+                // Perform logout logic by clearing authentication cookies
+                await _signInManager.SignOutAsync();
+
+                return Ok(new { StatusCode = 200, Message = "Logout successful" });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                // You might want to log the exception details for troubleshooting
+                _logger.LogError(ex, "An error occurred while processing the logout request.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { StatusCode = 500, Message = "An error occurred while processing the request." });
             }
         }
 
 
-        [HttpGet("verify-email")]
-        public async Task<IActionResult> VerifyEmail([FromQuery] string userId, [FromQuery] string token)
+
+        [HttpPost("VerifyEmail")]
+        public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequest request)
         {
             try
             {
-                // Decrypt user ID
-                var decryptedUserId = UnprotectData(userId);
+                var userVerification = await _userRepository.GetUserVerificationAsync(request.UserId, request.VerificationToken);
 
-                // Retrieve the UserVerification record
-                var userVerification = await _userRepository.GetUserVerificationAsync(decryptedUserId, token);
-
-                if (userVerification == null || userVerification.IsVerified)
+                if (userVerification == null)
                 {
-                    // Invalid or already verified token
-                    return BadRequest("Invalid verification token or user already verified.");
+                    return BadRequest("Invalid verification token or user not found.");
                 }
 
-                // Check if the verification token has expired
-                var expirationTime = DateTime.UtcNow.AddMinutes(-10); // Adjust as needed
+                if (userVerification.IsVerified)
+                {
+                    return BadRequest("User already verified.");
+                }
+
+                var expirationTime = DateTime.UtcNow.AddMinutes(-10);
+
                 if (userVerification.CreatedAt < expirationTime)
                 {
                     return BadRequest("Verification token has expired. Please request a new one.");
                 }
 
-                // Verify the token and update user status
                 userVerification.IsVerified = true;
+
                 await _userRepository.UpdateUserVerificationAsync(userVerification);
 
-                // Optionally, you can log the user in automatically after verification if needed.
-
-                return Ok(new { Message = "Email verification successful. You can now log in." });
+                return Ok(new { StatusCode = 200, Message = "Email verification successful. You can now log in." });
             }
+
             catch (Exception ex)
             {
-                // Log the exception
                 _logger.LogError(ex, "An error occurred while processing the email verification request.");
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing the request.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { StatusCode = 500, Message = "An error occurred while processing the request." });
             }
         }
+
 
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
@@ -194,15 +229,47 @@ namespace LUSCMaintenance.Controllers
                 {
                     // Check if the user is verified
                     if (!user.IsVerified)
-                    {
-                        return BadRequest("User email is not verified. Please check your email for verification instructions.");
+                    { 
+                        // Generate a verification token
+                        var verificationToken = GenerateVerificationToken();
+
+                        // Create a UserVerification record
+                        var userVerification = new UserVerification
+                        {
+                            UserId = user.Id.ToString(),
+                            VerificationToken = verificationToken,
+                            IsVerified = false,
+                            CreatedAt = DateTime.UtcNow
+                        };
+
+                        // Save the UserVerification to the database
+                        await _userRepository.CreateUserVerificationAsync(userVerification);
+
+                        // Return user ID and token to the client for redirection
+                        return Ok(new
+                        {
+                            StatusCode = 200,
+                            Message = "Login Almost successful, Account has not been verified.",
+                            UserId = user.Id.ToString(),
+                            VerificationToken = verificationToken
+                        });
+
                     }
 
                     // For simplicity, you can create a token and return it to the client
                     var token = GenerateJwtToken(user);
 
-                    return Ok(new { Token = token });
-                }
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
+                    {
+                        // Add any claims you need for the user here
+                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                        new Claim(ClaimTypes.Name, user.UserName),
+                        // Add more claims as needed
+                    }, CookieAuthenticationDefaults.AuthenticationScheme)));
+
+                    return Ok(new { StatusCode = 200, Token = token });
+                
+            }
 
                 return Unauthorized("Invalid credentials. Please check your email and password.");
 
@@ -211,9 +278,10 @@ namespace LUSCMaintenance.Controllers
             {
                 // Log the exception
                 _logger.LogError(ex, "An error occurred while processing the login request.");
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing the request.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { StatusCode = 500, Message = "An error occurred while processing the request." });
             }
         }
+
 
         [HttpPost("ForgotPassword")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
@@ -256,14 +324,14 @@ namespace LUSCMaintenance.Controllers
                 // Send the password reset email
                 await SendPasswordResetEmail(user.WebMail, resetToken);
 
-                // Return a success message
-                return Ok("Password reset instructions sent to your email.");
+                // Return a success message with a 200 OK status code
+                return Ok(new { StatusCode = 200, Message = "Password reset instructions sent to your email." });
             }
             catch (Exception ex)
             {
                 // Log the exception
                 _logger.LogError(ex, "An error occurred while processing the forgot password request.");
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing the request.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { StatusCode = 500, Message = "An error occurred while processing the request." });
             }
         }
         [HttpPost("UpdatePassword")]
@@ -312,14 +380,13 @@ namespace LUSCMaintenance.Controllers
                 await _userRepository.DeletePasswordResetByTokenAsync(request.ResetToken);
 
                 // No need to save the user separately when using UserManager
-                return Ok("Password updated successfully.");
-
+                return Ok(new { StatusCode = 200, Message = "Password updated successfully." });
             }
             catch (Exception ex)
             {
                 // Log the exception
                 _logger.LogError(ex, "An error occurred while processing the password update request.");
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing the request.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { StatusCode = 500, Message = "An error occurred while processing the request." });
             }
         }
 
@@ -348,15 +415,15 @@ namespace LUSCMaintenance.Controllers
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Email, user.WebMail),
-        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-    };
+            {
+                new Claim(ClaimTypes.Email, user.WebMail),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            };
             var token = new JwtSecurityToken(
                 issuer: _configuration["JwtSettings:Issuer"],
                 audience: _configuration["JwtSettings:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(10), // Token expiration time (adjust as n8ijcueeded)
+                expires: DateTime.UtcNow.AddHours(10), 
                 signingCredentials: credentials
             );
 

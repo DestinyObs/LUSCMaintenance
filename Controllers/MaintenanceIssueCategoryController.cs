@@ -25,7 +25,7 @@ namespace LUSC_e_Maintenance.Controllers
         public async Task<ActionResult<IEnumerable<MaintenanceIssueCategory>>> GetMaintenanceIssueCategories()
         {
             var categories = await _categoryRepository.GetMaintenanceIssueCategoriesAsync();
-            return Ok(categories);
+            return Ok(new { StatusCode = 200, Message = "Request successful", Data = categories });
         }
 
         [HttpGet("{id}")]
@@ -37,7 +37,7 @@ namespace LUSC_e_Maintenance.Controllers
                 return NotFound("Category not found");
             }
 
-            return Ok(category);
+            return Ok(new { StatusCode = 200, Message = "Request successful", Data = category });
         }
 
         [HttpPost]
@@ -49,7 +49,7 @@ namespace LUSC_e_Maintenance.Controllers
             }
 
             await _categoryRepository.AddMaintenanceIssueCategoryAsync(category);
-            return Ok("Category added successfully");
+            return Ok(new { StatusCode = 200, Message = "Category added successfully" });
         }
 
         [HttpPut("{id}")]
@@ -68,7 +68,7 @@ namespace LUSC_e_Maintenance.Controllers
 
             existingCategory.Name = category.Name;
             await _categoryRepository.UpdateMaintenanceIssueCategoryAsync(existingCategory);
-            return Ok("Category updated successfully");
+            return Ok(new { StatusCode = 200, Message = "Category updated successfully" });
         }
 
         [HttpDelete("{id}")]
@@ -81,7 +81,7 @@ namespace LUSC_e_Maintenance.Controllers
             }
 
             await _categoryRepository.DeleteMaintenanceIssueCategoryAsync(id);
-            return Ok("Category deleted successfully");
+            return Ok(new { StatusCode = 200, Message = "Category deleted successfully" });
         }
     }
 }
