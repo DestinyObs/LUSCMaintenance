@@ -186,19 +186,31 @@ namespace LUSCMaintenance.Controllers
                     return BadRequest("Verification token has expired. Please request a new one.");
                 }
 
-                userVerification.IsVerified = true;
+                var userId = Convert.ToInt32(userVerification.UserId);
+                // Retrieve the user based on the UserId from UserVerification
+                var user = await _userRepository.GetUserByIdAsync(userId);
 
-                await _userRepository.UpdateUserVerificationAsync(userVerification);
+
+                if (user == null)
+                {
+                    return BadRequest("User not found.");
+                }
+
+                // Update the IsVerified property of the user
+                user.IsVerified = true;
+
+                // Save changes to the database
+                await _userRepository.UpdateUserAsync(user);
 
                 return Ok(new { StatusCode = 200, Message = "Email verification successful. You can now log in." });
             }
-
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while processing the email verification request.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { StatusCode = 500, Message = "An error occurred while processing the request." });
             }
         }
+
 
 
         [HttpPost("Login")]

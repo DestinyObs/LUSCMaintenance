@@ -9,11 +9,12 @@ namespace LUSCMaintenance.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly LUSCMaintenanceDbContext _dbContext;
+        private readonly UserManager<User> _userManager;
 
-        public UserRepository(LUSCMaintenanceDbContext dbContext)
+        public UserRepository(LUSCMaintenanceDbContext dbContext, UserManager<User> userManager)
         {
             _dbContext = dbContext;
-
+            _userManager = userManager;
         }
 
 
@@ -86,6 +87,10 @@ namespace LUSCMaintenance.Repositories
 
             // Save changes to the database
             await _dbContext.SaveChangesAsync();
+        }
+        public async Task UpdateUser(User user)
+        {
+            await _userManager.UpdateAsync(user);
         }
         public async Task<PasswordReset> GetPasswordResetByTokenAsync(string resetToken)
         {
