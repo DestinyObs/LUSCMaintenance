@@ -76,30 +76,30 @@ namespace LUSCMaintenance
 
             builder.Services.AddLogging();
 
+            //builder.Services.AddCors(options =>
+            //{
+            //    options.AddPolicy("AllowAll", builder =>
+            //    {
+            //        builder.AllowAnyOrigin()
+            //               .AllowAnyMethod()
+            //               .AllowAnyHeader()
+            //               .AllowCredentials(); // allow credentials
+            //    });
+            //});
+
+
+
+            // Allow requests from specific origins
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowAll", builder =>
+                options.AddPolicy("AllowSome", builder =>
                 {
-                    builder.AllowAnyOrigin()
+                    builder.WithOrigins("http://localhost:5173", "https://196.13.111.164:5001")
                            .AllowAnyMethod()
                            .AllowAnyHeader()
                            .AllowCredentials(); // allow credentials
                 });
             });
-
-
-
-            //// Allow requests from specific origins
-            //builder.Services.AddCors(options =>
-            //{
-            //    options.AddPolicy("AllowSome", builder =>
-            //    {
-            //        builder.WithOrigins("http://localhost:5173", "https://196.13.111.164:5001")
-            //               .AllowAnyMethod()
-            //               .AllowAnyHeader();
-            //    });
-            //});
-
 
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IMaintenanceIssueCategoryRepository, MaintenanceIssueCategoryRepository>();
@@ -148,18 +148,18 @@ namespace LUSCMaintenance
 
             app.UseRouting();
 
-            app.UseCors("AllowAll");
+            //app.UseCors("AllowAll");
 
             app.UseCors("AllowSome");
 
-            //migrate any database changes on startup(includes initial db creation)
-            using (var scope = app.Services.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<LUSCMaintenanceDbContext>();
-                dbContext.Database.Migrate();
-            }
+            ////migrate any database changes on startup(includes initial db creation)
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var dbContext = scope.ServiceProvider.GetRequiredService<LUSCMaintenanceDbContext>();
+            //    dbContext.Database.Migrate();
+            //}
 
-            app.Urls.Add("https://196.13.111.164:5001");//using the for the server IP
+            //app.Urls.Add("https://196.13.111.164:5001");//using the for the server IP
 
             app.UseSwagger();
             app.UseSwaggerUI();
