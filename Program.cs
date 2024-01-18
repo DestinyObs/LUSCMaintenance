@@ -76,18 +76,6 @@ namespace LUSCMaintenance
 
             builder.Services.AddLogging();
 
-            //builder.Services.AddCors(options =>
-            //{
-            //    options.AddPolicy("AllowAll", builder =>
-            //    {
-            //        builder.AllowAnyOrigin()
-            //               .AllowAnyMethod()
-            //               .AllowAnyHeader()
-            //               .AllowCredentials(); // allow credentials
-            //    });
-            //});
-
-
 
             // Allow requests from specific origins
             builder.Services.AddCors(options =>
@@ -147,8 +135,6 @@ namespace LUSCMaintenance
             var app = builder.Build();
 
             app.UseRouting();
-
-            //app.UseCors("AllowAll");
 
             app.UseCors("AllowSome");
 

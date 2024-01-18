@@ -116,13 +116,12 @@ namespace LUSCMaintenance.Controllers
                 // Save the UserVerification to the database
                 await _userRepository.CreateUserVerificationAsync(userVerification);
 
-                // Send verification email
-                //await SendEmail(newUser.WebMail, "Account Verification", GetVerificationEmailBody(newUser.Id.ToString(), verificationToken));
+                //Send verification email
+               await SendEmail(newUser.WebMail, "Account Verification", GetVerificationEmailBody(newUser.Id.ToString(), verificationToken));
 
-                // Return a success message with a 201 Created status code
-                //return CreatedAtAction(nameof(Register), new { Message = "Registration successful. Check your email for verification." });
+                //Return a success message with a 201 Created status code
+                return CreatedAtAction(nameof(Register), new { StatusCode = 200, Message = "Registration successful. Check your email for verification." });
 
-                return Ok(new { UserId = newUser.Id.ToString(), VerificationToken = verificationToken });
 
             }
             catch (Exception ex)
@@ -202,6 +201,11 @@ namespace LUSCMaintenance.Controllers
                 // Save changes to the database
                 await _userRepository.UpdateUserAsync(user);
 
+                // Mark the verification token as used and delete it
+                userVerification.IsVerified = true;
+                await _userRepository.UpdateUserVerificationAsync(userVerification);
+
+
                 return Ok(new { StatusCode = 200, Message = "Email verification successful. You can now log in." });
             }
             catch (Exception ex)
@@ -237,54 +241,50 @@ namespace LUSCMaintenance.Controllers
                 }
 
                 // Verify the password
-                if (await _userManager.CheckPasswordAsync(user, request.Password))
+                if (!await _userManager.CheckPasswordAsync(user, request.Password))
                 {
-                    // Check if the user is verified
-                    if (!user.IsVerified)
-                    { 
-                        // Generate a verification token
-                        var verificationToken = GenerateVerificationToken();
+                    return Unauthorized("Invalid credentials. Please check your email and password.");
+                }
 
-                        // Create a UserVerification record
-                        var userVerification = new UserVerification
-                        {
-                            UserId = user.Id.ToString(),
-                            VerificationToken = verificationToken,
-                            IsVerified = false,
-                            CreatedAt = DateTime.UtcNow
-                        };
+                // Check if the user is verified
+                if (!user.IsVerified)
+                {
+                    // Generate a verification token
+                    var verificationToken = GenerateVerificationToken();
 
-                        // Save the UserVerification to the database
-                        await _userRepository.CreateUserVerificationAsync(userVerification);
-
-                        // Return user ID and token to the client for redirection
-                        return Ok(new
-                        {
-                            StatusCode = 200,
-                            Message = "Login Almost successful, Account has not been verified.",
-                            UserId = user.Id.ToString(),
-                            VerificationToken = verificationToken
-                        });
-
-                    }
-
-                    // For simplicity, you can create a token and return it to the client
-                    var token = GenerateJwtToken(user);
-
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
+                    // Create a UserVerification record
+                    var userVerification = new UserVerification
                     {
-                        // Add any claims you need for the user here
-                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                        new Claim(ClaimTypes.Name, user.UserName),
-                        // Add more claims as needed
-                    }, CookieAuthenticationDefaults.AuthenticationScheme)));
+                        UserId = user.Id.ToString(),
+                        VerificationToken = verificationToken,
+                        IsVerified = false,
+                        CreatedAt = DateTime.UtcNow
+                    };
 
-                    return Ok(new { StatusCode = 200, Token = token });
-                
-            }
+                    // Save the UserVerification to the database
+                    await _userRepository.CreateUserVerificationAsync(userVerification);
 
-                return Unauthorized("Invalid credentials. Please check your email and password.");
+                    // Send verification email
+                    await SendEmail(user.WebMail, "Account Verification", GetVerificationEmailBody(user.Id.ToString(), verificationToken));
 
+                    // Return a success message with a 201 Created status code
+                    return CreatedAtAction(nameof(Login), new { StatusCode = 200, Message = "Email verification sent. Check your email for verification." });
+                }
+
+                // For simplicity, you can create a token and return it to the client
+                var token = GenerateJwtToken(user);
+
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(new ClaimsIdentity(new List<Claim>
+        {
+            // Add any claims you need for the user here
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.WebMail),
+            new Claim(ClaimTypes.Email, user.WebMail),
+
+            // Add more claims as needed
+        }, CookieAuthenticationDefaults.AuthenticationScheme)));
+
+                return Ok(new { StatusCode = 200, Token = token });
             }
             catch (Exception ex)
             {
@@ -293,6 +293,7 @@ namespace LUSCMaintenance.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { StatusCode = 500, Message = "An error occurred while processing the request." });
             }
         }
+
 
 
         [HttpPost("ForgotPassword")]
@@ -428,6 +429,7 @@ namespace LUSCMaintenance.Controllers
 
             var claims = new List<Claim>
             {
+                new Claim(ClaimTypes.Name, user.WebMail),
                 new Claim(ClaimTypes.Email, user.WebMail),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             };
@@ -451,11 +453,11 @@ namespace LUSCMaintenance.Controllers
 
         private string GetVerificationEmailBody(string userId, string verificationToken)
         {
-            // Encrypt user ID and verification token
-            var encryptedUserId = ProtectData(userId);
+            //// Encrypt user ID and verification token
+            //var encryptedUserId = ProtectData(userId);
 
             // Construct email body with encrypted verification link
-            var verificationLink = $"https://localhost:5173/verify-email?userId={encryptedUserId}&token={verificationToken}";
+            var verificationLink = $"https://localhost:5173/verify-email?userId={userId}&token={verificationToken}";
             return $"Click the following link to verify your email: {verificationLink}";
         }
 

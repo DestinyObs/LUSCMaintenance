@@ -11,7 +11,7 @@ using System.Security.Claims;
 
 namespace LUSCMaintenance.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class MaintenanceProblemController : ControllerBase
@@ -27,7 +27,7 @@ namespace LUSCMaintenance.Controllers
             _photoService = photoService;
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MaintenanceProblemResponse>>> GetMaintenanceProblems()
         {
@@ -36,7 +36,7 @@ namespace LUSCMaintenance.Controllers
             return Ok(response);
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<ActionResult<MaintenanceProblemResponse>> GetMaintenanceProblemById(int id)
         {
@@ -50,7 +50,7 @@ namespace LUSCMaintenance.Controllers
             return Ok(response);
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateMaintenanceProblem(int id, [FromBody] MaintenanceProblemResponse maintenanceProblem)
         {
@@ -71,7 +71,7 @@ namespace LUSCMaintenance.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMaintenanceProblem(int id)
         {
@@ -79,11 +79,14 @@ namespace LUSCMaintenance.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = "Student")]
+        //[Authorize(Roles = "Student")]
         [HttpPost]
         public async Task<ActionResult<MaintenanceProblemResponse>> AddMaintenanceProblem([FromForm] MaintenanceProblemRequest maintenanceProblemRequest)
         {
-            var userWebMail = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
+
+            //var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var userWebMail = User.FindFirst(ClaimTypes.Email)?.Value;
 
             string imageUrl = null;
 

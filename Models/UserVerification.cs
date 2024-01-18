@@ -7,8 +7,10 @@
             public string VerificationToken { get; set; }
             public bool IsVerified { get; set; }
             public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; } 
 
-            // Navigation property
-            public User User { get; set; }
+
+        // Navigation property
+        public User User { get; set; }
         }
     }

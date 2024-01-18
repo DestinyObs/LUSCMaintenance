@@ -45,7 +45,8 @@ namespace LUSCMaintenance.Models
         public DateTime TimeAvailable { get; set; }
 
         [Required]
-        public DateTime DateComplaintMade { get; set; }
+        public DateTime DateComplaintMade { get; set; } = DateTime.UtcNow;
+
 
         public bool IsResolved { get; set; } = false;
     }

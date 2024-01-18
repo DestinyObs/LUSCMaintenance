@@ -74,11 +74,26 @@ namespace LUSCMaintenance.Repositories
 
         public async Task UpdateUserVerificationAsync(UserVerification userVerification)
         {
-            _dbContext.Entry(userVerification).State = EntityState.Modified;
-            await _dbContext.SaveChangesAsync();
+            try
+            {
+                var existingVerification = await _dbContext.UserVerifications
+                    .FirstOrDefaultAsync(uv => uv.UserId == userVerification.UserId && uv.VerificationToken == userVerification.VerificationToken);
+
+                if (existingVerification != null)
+                {
+                    existingVerification.IsVerified = userVerification.IsVerified;
+                    existingVerification.UpdatedAt = DateTime.UtcNow;
+
+                    _dbContext.UserVerifications.Update(existingVerification);
+                    await _dbContext.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it according to your application's error handling strategy.
+                throw;
+            }
         }
-
-
         public async Task UpdatePasswordResetAsync(PasswordReset passwordReset)
         {
 
