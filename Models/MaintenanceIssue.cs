@@ -6,5 +6,6 @@
         public string Description { get; set; }
         public int MaintenanceIssueCategoryId { get; set; }
         public MaintenanceIssueCategory MaintenanceIssueCategory { get; set; }
+        public virtual ICollection<MaintenanceProblemIssue> MaintenanceProblemIssues { get; set; }
     }
 }

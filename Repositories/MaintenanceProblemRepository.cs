@@ -28,16 +28,12 @@ namespace LUSCMaintenance.Repositories
             return await _context.MaintenanceProblems.FindAsync(id);
         }
 
-        public async Task AddMaintenanceProblemAsync(MaintenanceProblem maintenanceProblem)
-        {
-            _context.MaintenanceProblems.Add(maintenanceProblem);
-            await _context.SaveChangesAsync();
-        }
 
         public async Task<IEnumerable<MaintenanceProblem>> GetMaintenanceProblemsByUserAsync(string userWebMail)
         {
             return await _context.MaintenanceProblems.Where(p => p.WebMail == userWebMail).ToListAsync();
         }
+
         public async Task UpdateMaintenanceProblemAsync(MaintenanceProblem maintenanceProblem)
         {
             _context.MaintenanceProblems.Update(maintenanceProblem);
@@ -52,6 +48,13 @@ namespace LUSCMaintenance.Repositories
                 _context.MaintenanceProblems.Remove(maintenanceProblem);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public async Task<MaintenanceProblem> AddMaintenanceProblemAsync(MaintenanceProblem maintenanceProblem)
+        {
+            await _context.MaintenanceProblems.AddAsync(maintenanceProblem);
+            await _context.SaveChangesAsync();
+            return maintenanceProblem;
         }
     }
 }

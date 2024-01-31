@@ -3,6 +3,7 @@ using System;
 using LUSCMaintenance.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LUSCMaintenance.Migrations
 {
     [DbContext(typeof(LUSCMaintenanceDbContext))]
-    partial class LUSCMaintenanceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240131130822_marryme")]
+    partial class marryme
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,9 +35,14 @@ namespace LUSCMaintenance.Migrations
                     b.Property<int>("MaintenanceIssueCategoryId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("MaintenanceProblemId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("MaintenanceIssueCategoryId");
+
+                    b.HasIndex("MaintenanceProblemId");
 
                     b.ToTable("MaintenanceIssues");
 
@@ -331,27 +339,6 @@ namespace LUSCMaintenance.Migrations
                     b.ToTable("MaintenanceProblems");
                 });
 
-            modelBuilder.Entity("LUSCMaintenance.Models.MaintenanceProblemIssue", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int>("MaintenanceIssueId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MaintenanceProblemId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MaintenanceIssueId");
-
-                    b.HasIndex("MaintenanceProblemId");
-
-                    b.ToTable("MaintenanceProblemIssue");
-                });
-
             modelBuilder.Entity("LUSCMaintenance.Models.PasswordReset", b =>
                 {
                     b.Property<int>("Id")
@@ -464,14 +451,14 @@ namespace LUSCMaintenance.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "2bc2b471-4b12-4408-8384-928c765bd290",
+                            ConcurrencyStamp = "abd06e72-ce97-45b6-8eb6-81e3a521ad07",
                             Email = "hor@lmu.edu.ng",
                             EmailConfirmed = true,
                             IsVerified = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "HOR@LMU.EDU.NG",
                             NormalizedUserName = "HOR@LMU.EDU.NG",
-                            PasswordHash = "$2a$10$dsFG3LreqzY8qtO8QZ5ru.JQY/hB/4eqDk2IksIKRjJt0YOlWeyrq",
+                            PasswordHash = "$2a$10$aL/zm/GNb.u8r0FW0q8waeeaOfSEWMlTspAlwbfMHzjx8.r1KGFXm",
                             PhoneNumberConfirmed = false,
                             Roles = "Admin",
                             SecurityStamp = "",
@@ -483,14 +470,14 @@ namespace LUSCMaintenance.Migrations
                         {
                             Id = 2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "acb96e68-49df-4a37-b3ad-6aa3c95b8a79",
+                            ConcurrencyStamp = "2289bc0a-551f-4a35-a3fe-ff5a56fd3ec8",
                             Email = "vcm@lmu.edu.ng",
                             EmailConfirmed = true,
                             IsVerified = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "VCM@LMU.EDU.NG",
                             NormalizedUserName = "VCM@LMU.EDU.NG",
-                            PasswordHash = "$2a$10$dsFG3LreqzY8qtO8QZ5ru.2vBMiKggO7tc4..Qn4CdaV7IuPfHZxK",
+                            PasswordHash = "$2a$10$aL/zm/GNb.u8r0FW0q8waeUTXzVWUbWq2oU7rQDmPC49x83sAVQx.",
                             PhoneNumberConfirmed = false,
                             Roles = "Admin",
                             SecurityStamp = "",
@@ -688,26 +675,11 @@ namespace LUSCMaintenance.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("LUSCMaintenance.Models.MaintenanceProblem", null)
+                        .WithMany("MaintenanceProblemIssues")
+                        .HasForeignKey("MaintenanceProblemId");
+
                     b.Navigation("MaintenanceIssueCategory");
-                });
-
-            modelBuilder.Entity("LUSCMaintenance.Models.MaintenanceProblemIssue", b =>
-                {
-                    b.HasOne("LUSCMaintenance.Models.MaintenanceIssue", "MaintenanceIssue")
-                        .WithMany("MaintenanceProblemIssues")
-                        .HasForeignKey("MaintenanceIssueId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("LUSCMaintenance.Models.MaintenanceProblem", "MaintenanceProblem")
-                        .WithMany("MaintenanceProblemIssues")
-                        .HasForeignKey("MaintenanceProblemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("MaintenanceIssue");
-
-                    b.Navigation("MaintenanceProblem");
                 });
 
             modelBuilder.Entity("LUSCMaintenance.Models.PasswordReset", b =>
@@ -779,11 +751,6 @@ namespace LUSCMaintenance.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("LUSCMaintenance.Models.MaintenanceIssue", b =>
-                {
-                    b.Navigation("MaintenanceProblemIssues");
                 });
 
             modelBuilder.Entity("LUSCMaintenance.Models.MaintenanceProblem", b =>

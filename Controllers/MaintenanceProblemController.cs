@@ -1,4 +1,6 @@
-﻿using System;
+﻿
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,6 +10,8 @@ using LUSCMaintenance.Models;
 using LUSCMaintenance.DTOs;
 using System.Security.Claims;
 using LUSCMaintenance.ViewModels;
+using LUSCMaintenance.Services;
+using LUSCMaintenance.Repositories;
 
 namespace LUSCMaintenance.Controllers
 {
@@ -16,15 +20,18 @@ namespace LUSCMaintenance.Controllers
     public class MaintenanceProblemController : ControllerBase
     {
         private readonly IMaintenanceProblemRepository _maintenanceProblemRepository;
+        private readonly IPhotoService _photoService;
+        private readonly IMaintenanceIssueRepository _maintenanceIssueRepository;
 
-        public MaintenanceProblemController(IMaintenanceProblemRepository maintenanceProblemRepository)
+        public MaintenanceProblemController(IMaintenanceProblemRepository maintenanceProblemRepository, IPhotoService photoService, IMaintenanceIssueRepository maintenanceIssueRepository)
         {
             _maintenanceProblemRepository = maintenanceProblemRepository;
+            _photoService = photoService;
+            _maintenanceIssueRepository = maintenanceIssueRepository;
         }
 
-
         [HttpPost]
-        public async Task<ActionResult<MaintenanceProblemResponse>> AddMaintenanceProblem([FromBody] MaintenanceProblemRequest maintenanceProblemRequest)
+        public async Task<ActionResult<MaintenanceProblemResponse>> AddMaintenanceProblem([FromForm] MaintenanceProblemRequest maintenanceProblemRequest)
         {
             if (maintenanceProblemRequest == null)
             {
@@ -33,6 +40,31 @@ namespace LUSCMaintenance.Controllers
 
             // Extract user's webmail from claims
             var userWebMail = User.FindFirst(ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(userWebMail))
+            {
+                return BadRequest("Unable to identify user.");
+            }
+
+            // Initialize imageURL to null
+            string imageUrl = null;
+
+            // Check if an image was provided in the request
+            if (maintenanceProblemRequest.Image != null && maintenanceProblemRequest.Image.Length > 0)
+            {
+                // Use the PhotoService to upload the image to Cloudinary
+                var uploadResult = await _photoService.AddPhotoAsync(maintenanceProblemRequest.Image);
+
+                // Check if image upload was successful
+                if (uploadResult.Error == null)
+                {
+                    imageUrl = uploadResult.SecureUri.AbsoluteUri;
+                }
+                else
+                {
+                    // Handle image upload failure
+                    return BadRequest("Failed to upload photo.");
+                }
+            }
 
             // Map DTO to entity
             var maintenanceProblem = new MaintenanceProblem
@@ -42,10 +74,26 @@ namespace LUSCMaintenance.Controllers
                 Hostel = maintenanceProblemRequest.Hostel,
                 RoomNumber = maintenanceProblemRequest.RoomNumber,
                 TimeAvailable = maintenanceProblemRequest.TimeAvailable,
+                ImageURL = imageUrl,
                 DateComplaintMade = DateTime.UtcNow,
-                IsResolved = false,
-                MaintenanceProblemIssues = maintenanceProblemRequest.MaintenanceIssueIds.Select(id => new MaintenanceIssue { Id = id }).ToList()
+                IsResolved = false
             };
+
+            // Get maintenance issues by IDs
+            var maintenanceIssues = await _maintenanceIssueRepository.GetMaintenanceIssuesAsync();
+            var selectedIssues = maintenanceIssues.Where(issue => maintenanceProblemRequest.MaintenanceIssueIds.Contains(issue.Id)).ToList();
+            if (selectedIssues.Count != maintenanceProblemRequest.MaintenanceIssueIds.Count)
+            {
+                return BadRequest("One or more selected issues are invalid.");
+            }
+
+            // Add selected issues to the maintenance problem
+            maintenanceProblem.MaintenanceProblemIssues = selectedIssues.Select(issue => new MaintenanceProblemIssue
+            {
+                MaintenanceIssueId = issue.Id,
+                MaintenanceIssue = issue,
+                MaintenanceProblem = maintenanceProblem
+            }).ToList();
 
             // Add maintenance problem to repository
             await _maintenanceProblemRepository.AddMaintenanceProblemAsync(maintenanceProblem);
@@ -61,11 +109,12 @@ namespace LUSCMaintenance.Controllers
                 TimeAvailable = maintenanceProblem.TimeAvailable,
                 DateComplaintMade = maintenanceProblem.DateComplaintMade,
                 IsResolved = maintenanceProblem.IsResolved,
-                MaintenanceIssueIds = maintenanceProblem.MaintenanceProblemIssues.Select(issue => issue.Id).ToList()
+                MaintenanceIssueIds = maintenanceProblem.MaintenanceProblemIssues.Select(issue => issue.MaintenanceIssueId).ToList()
             };
 
             return CreatedAtAction(nameof(GetMaintenanceProblemById), new { id = maintenanceProblem.Id }, response);
         }
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<MaintenanceProblemResponse>> GetMaintenanceProblemById(int id)
@@ -92,10 +141,11 @@ namespace LUSCMaintenance.Controllers
             return Ok(response);
         }
 
-        [HttpGet("user")]
+        [HttpGet("userProblems")]
         public async Task<ActionResult<IEnumerable<MaintenanceProblemResponse>>> GetMaintenanceProblemsByCurrentUser()
         {
             var userWebMail = User.FindFirst(ClaimTypes.Email)?.Value;
+
             if (userWebMail == null)
             {
                 return BadRequest("User not authenticated.");

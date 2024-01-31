@@ -43,7 +43,7 @@ namespace LUSCMaintenance.Models
         public DateTime DateComplaintMade { get; set; } = DateTime.UtcNow;
 
         public bool IsResolved { get; set; } = false;
-
-        public virtual ICollection<MaintenanceIssue> MaintenanceProblemIssues { get; set; }
+        // Add navigation property for the join table
+        public virtual ICollection<MaintenanceProblemIssue> MaintenanceProblemIssues { get; set; }
     }
 }
