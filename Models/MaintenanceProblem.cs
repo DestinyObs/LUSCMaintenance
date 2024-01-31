@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -27,19 +28,13 @@ namespace LUSCMaintenance.Models
         public string? ImageURL { get; set; }
 
         [Required]
-        public int MaintenanceIssueId { get; set; }
-
-        [ForeignKey(nameof(MaintenanceIssueId))]
-        public MaintenanceIssue MaintenanceIssue { get; set; }
-
-        [MaxLength(1)] // Block is a single letter
         public string Block { get; set; }
 
         [EnumDataType(typeof(Hostel))]
         public Hostel Hostel { get; set; }
 
         [Required]
-        [Range(100, 999)] // Room number is three digits
+        [Range(100, 999)]
         public int RoomNumber { get; set; }
 
         public DateTime TimeAvailable { get; set; }
@@ -47,7 +42,8 @@ namespace LUSCMaintenance.Models
         [Required]
         public DateTime DateComplaintMade { get; set; } = DateTime.UtcNow;
 
-
         public bool IsResolved { get; set; } = false;
+
+        public virtual ICollection<MaintenanceIssue> MaintenanceProblemIssues { get; set; }
     }
 }

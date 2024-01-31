@@ -38,6 +38,7 @@ namespace LUSCMaintenance.Data
                 new MaintenanceIssueCategory { Id = 3, Name = "Plumbing Maintenance" },
                 new MaintenanceIssueCategory { Id = 4, Name = "Others Maintenance" }
             );
+
             modelBuilder.Entity<MaintenanceIssue>().HasData(
               new MaintenanceIssue { Id = 1, Description = "Faulty Socket", MaintenanceIssueCategoryId = 1 },
               new MaintenanceIssue { Id = 2, Description = "Broken Door Handle", MaintenanceIssueCategoryId = 2 },

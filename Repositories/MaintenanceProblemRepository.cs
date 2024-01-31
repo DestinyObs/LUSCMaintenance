@@ -34,6 +34,10 @@ namespace LUSCMaintenance.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<IEnumerable<MaintenanceProblem>> GetMaintenanceProblemsByUserAsync(string userWebMail)
+        {
+            return await _context.MaintenanceProblems.Where(p => p.WebMail == userWebMail).ToListAsync();
+        }
         public async Task UpdateMaintenanceProblemAsync(MaintenanceProblem maintenanceProblem)
         {
             _context.MaintenanceProblems.Update(maintenanceProblem);

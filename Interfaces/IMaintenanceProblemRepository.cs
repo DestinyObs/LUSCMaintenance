@@ -1,5 +1,4 @@
-﻿// IMaintenanceProblemRepository.cs
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using LUSCMaintenance.Models;
 
@@ -12,5 +11,7 @@ namespace LUSCMaintenance.Interfaces
         Task AddMaintenanceProblemAsync(MaintenanceProblem maintenanceProblem);
         Task UpdateMaintenanceProblemAsync(MaintenanceProblem maintenanceProblem);
         Task DeleteMaintenanceProblemAsync(int id);
+        Task<IEnumerable<MaintenanceProblem>> GetMaintenanceProblemsByUserAsync(string userWebMail);
+
     }
 }

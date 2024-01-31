@@ -1,19 +1,21 @@
-﻿using System;
-using LUSCMaintenance.Models;
+﻿using LUSCMaintenance.Models;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
-namespace LUSCMaintenance.Controllers
+namespace LUSCMaintenance.DTOs
 {
+
     public class MaintenanceProblemResponse
     {
         public int Id { get; set; }
         public string WebMail { get; set; }
-        public string ImageURL { get; set; }
-        public int MaintenanceIssueId { get; set; }
-        public String Block { get; set; }
+        public string Block { get; set; }
         public Hostel Hostel { get; set; }
         public int RoomNumber { get; set; }
         public DateTime TimeAvailable { get; set; }
         public DateTime DateComplaintMade { get; set; }
         public bool IsResolved { get; set; }
+        public List<int> MaintenanceIssueIds { get; set; }
     }
 }

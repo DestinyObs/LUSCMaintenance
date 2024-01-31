@@ -1,42 +1,72 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LUSCMaintenance.Interfaces;
 using LUSCMaintenance.Models;
-using LUSCMaintenance.Services;
-using LUSCMaintenance.Controllers;
+using LUSCMaintenance.DTOs;
 using System.Security.Claims;
+using LUSCMaintenance.ViewModels;
 
 namespace LUSCMaintenance.Controllers
 {
-    //[Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class MaintenanceProblemController : ControllerBase
     {
         private readonly IMaintenanceProblemRepository _maintenanceProblemRepository;
-        private readonly IPhotoService _photoService;
 
-        public MaintenanceProblemController(
-            IMaintenanceProblemRepository maintenanceProblemRepository,
-            IPhotoService photoService)
+        public MaintenanceProblemController(IMaintenanceProblemRepository maintenanceProblemRepository)
         {
             _maintenanceProblemRepository = maintenanceProblemRepository;
-            _photoService = photoService;
         }
 
-        //[Authorize(Roles = "Admin")]
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<MaintenanceProblemResponse>>> GetMaintenanceProblems()
+
+        [HttpPost]
+        public async Task<ActionResult<MaintenanceProblemResponse>> AddMaintenanceProblem([FromBody] MaintenanceProblemRequest maintenanceProblemRequest)
         {
-            var maintenanceProblems = await _maintenanceProblemRepository.GetMaintenanceProblemsAsync();
-            var response = MapToResponse(maintenanceProblems);
-            return Ok(response);
+            if (maintenanceProblemRequest == null)
+            {
+                return BadRequest("Invalid request data.");
+            }
+
+            // Extract user's webmail from claims
+            var userWebMail = User.FindFirst(ClaimTypes.Email)?.Value;
+
+            // Map DTO to entity
+            var maintenanceProblem = new MaintenanceProblem
+            {
+                WebMail = userWebMail,
+                Block = maintenanceProblemRequest.Block,
+                Hostel = maintenanceProblemRequest.Hostel,
+                RoomNumber = maintenanceProblemRequest.RoomNumber,
+                TimeAvailable = maintenanceProblemRequest.TimeAvailable,
+                DateComplaintMade = DateTime.UtcNow,
+                IsResolved = false,
+                MaintenanceProblemIssues = maintenanceProblemRequest.MaintenanceIssueIds.Select(id => new MaintenanceIssue { Id = id }).ToList()
+            };
+
+            // Add maintenance problem to repository
+            await _maintenanceProblemRepository.AddMaintenanceProblemAsync(maintenanceProblem);
+
+            // Map entity to response DTO
+            var response = new MaintenanceProblemResponse
+            {
+                Id = maintenanceProblem.Id,
+                WebMail = maintenanceProblem.WebMail,
+                Block = maintenanceProblem.Block,
+                Hostel = maintenanceProblem.Hostel,
+                RoomNumber = maintenanceProblem.RoomNumber,
+                TimeAvailable = maintenanceProblem.TimeAvailable,
+                DateComplaintMade = maintenanceProblem.DateComplaintMade,
+                IsResolved = maintenanceProblem.IsResolved,
+                MaintenanceIssueIds = maintenanceProblem.MaintenanceProblemIssues.Select(issue => issue.Id).ToList()
+            };
+
+            return CreatedAtAction(nameof(GetMaintenanceProblemById), new { id = maintenanceProblem.Id }, response);
         }
 
-        //[Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<ActionResult<MaintenanceProblemResponse>> GetMaintenanceProblemById(int id)
         {
@@ -46,130 +76,61 @@ namespace LUSCMaintenance.Controllers
                 return NotFound();
             }
 
-            var response = MapToResponse(maintenanceProblem);
+            var response = new MaintenanceProblemResponse
+            {
+                Id = maintenanceProblem.Id,
+                WebMail = maintenanceProblem.WebMail,
+                Block = maintenanceProblem.Block,
+                Hostel = maintenanceProblem.Hostel,
+                RoomNumber = maintenanceProblem.RoomNumber,
+                TimeAvailable = maintenanceProblem.TimeAvailable,
+                DateComplaintMade = maintenanceProblem.DateComplaintMade,
+                IsResolved = maintenanceProblem.IsResolved,
+                MaintenanceIssueIds = maintenanceProblem.MaintenanceProblemIssues.Select(issue => issue.Id).ToList()
+            };
+
             return Ok(response);
         }
 
-        //[Authorize(Roles = "Admin")]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateMaintenanceProblem(int id, [FromBody] MaintenanceProblemResponse maintenanceProblem)
+        [HttpGet("user")]
+        public async Task<ActionResult<IEnumerable<MaintenanceProblemResponse>>> GetMaintenanceProblemsByCurrentUser()
         {
-            if (id != maintenanceProblem.Id)
+            var userWebMail = User.FindFirst(ClaimTypes.Email)?.Value;
+            if (userWebMail == null)
             {
-                return BadRequest();
+                return BadRequest("User not authenticated.");
             }
 
-            var problemToUpdate = await _maintenanceProblemRepository.GetMaintenanceProblemByIdAsync(id);
-            if (problemToUpdate == null)
+            var maintenanceProblems = await _maintenanceProblemRepository.GetMaintenanceProblemsByUserAsync(userWebMail);
+            var response = maintenanceProblems.Select(problem => new MaintenanceProblemResponse
+            {
+                Id = problem.Id,
+                WebMail = problem.WebMail,
+                Block = problem.Block,
+                Hostel = problem.Hostel,
+                RoomNumber = problem.RoomNumber,
+                TimeAvailable = problem.TimeAvailable,
+                DateComplaintMade = problem.DateComplaintMade,
+                IsResolved = problem.IsResolved,
+                MaintenanceIssueIds = problem.MaintenanceProblemIssues.Select(issue => issue.Id).ToList()
+            });
+
+            return Ok(response);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateMaintenanceProblem(int id, [FromBody] MaintenanceProblemUpdateRequest maintenanceProblemUpdateRequest)
+        {
+            var maintenanceProblem = await _maintenanceProblemRepository.GetMaintenanceProblemByIdAsync(id);
+            if (maintenanceProblem == null)
             {
                 return NotFound();
             }
 
-            MapToEntity(maintenanceProblem, problemToUpdate);
+            maintenanceProblem.IsResolved = maintenanceProblemUpdateRequest.IsResolved;
+            await _maintenanceProblemRepository.UpdateMaintenanceProblemAsync(maintenanceProblem);
 
-            await _maintenanceProblemRepository.UpdateMaintenanceProblemAsync(problemToUpdate);
             return NoContent();
-        }
-
-        //[Authorize(Roles = "Admin")]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMaintenanceProblem(int id)
-        {
-            await _maintenanceProblemRepository.DeleteMaintenanceProblemAsync(id);
-            return NoContent();
-        }
-
-        //[Authorize(Roles = "Student")]
-        [HttpPost]
-        public async Task<ActionResult<MaintenanceProblemResponse>> AddMaintenanceProblem([FromForm] MaintenanceProblemRequest maintenanceProblemRequest)
-        {
-
-            //var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            var userWebMail = User.FindFirst(ClaimTypes.Email)?.Value;
-
-            string imageUrl = null;
-
-            if (maintenanceProblemRequest.Image != null && maintenanceProblemRequest.Image.Length > 0)
-            {
-                var uploadResult = await _photoService.AddPhotoAsync(maintenanceProblemRequest.Image);
-
-                if (uploadResult.Error == null)
-                {
-                    imageUrl = uploadResult.SecureUri.AbsoluteUri;
-                }
-                else
-                {
-                    return BadRequest("Failed to upload photo.");
-                }
-            }
-
-            var maintenanceProblem = new MaintenanceProblem
-            {
-                WebMail = userWebMail,
-                ImageURL = imageUrl, 
-                MaintenanceIssueId = maintenanceProblemRequest.MaintenanceIssueCategoryId,
-                Block = maintenanceProblemRequest.Block,
-                Hostel = maintenanceProblemRequest.Hostel,
-                RoomNumber = maintenanceProblemRequest.RoomNumber,
-                TimeAvailable = maintenanceProblemRequest.TimeAvailable,
-                DateComplaintMade = DateTime.Now,
-                IsResolved = false
-            };
-
-            await _maintenanceProblemRepository.AddMaintenanceProblemAsync(maintenanceProblem);
-
-            var response = MapToResponse(maintenanceProblem);
-            return CreatedAtAction(nameof(GetMaintenanceProblemById), new { id = maintenanceProblem.Id }, response);
-        }
-
-
-
-        private List<MaintenanceProblemResponse> MapToResponse(IEnumerable<MaintenanceProblem> problems)
-        {
-            return problems.Select(problem => new MaintenanceProblemResponse
-            {
-                Id = problem.Id,
-                WebMail = problem.WebMail,
-                ImageURL = problem.ImageURL,
-                MaintenanceIssueId = problem.MaintenanceIssueId,
-                Block = problem.Block,
-                Hostel = problem.Hostel,
-                RoomNumber = problem.RoomNumber,
-                TimeAvailable = problem.TimeAvailable,
-                DateComplaintMade = problem.DateComplaintMade,
-                IsResolved = problem.IsResolved
-            }).ToList();
-        }
-
-        private MaintenanceProblemResponse MapToResponse(MaintenanceProblem problem)
-        {
-            return new MaintenanceProblemResponse
-            {
-                Id = problem.Id,
-                WebMail = problem.WebMail,
-                ImageURL = problem.ImageURL,
-                MaintenanceIssueId = problem.MaintenanceIssueId,
-                Block = problem.Block,
-                Hostel = problem.Hostel,
-                RoomNumber = problem.RoomNumber,
-                TimeAvailable = problem.TimeAvailable,
-                DateComplaintMade = problem.DateComplaintMade,
-                IsResolved = problem.IsResolved
-            };
-        }
-
-        private void MapToEntity(MaintenanceProblemResponse response, MaintenanceProblem problem)
-        {
-            problem.WebMail = response.WebMail;
-            problem.ImageURL = response.ImageURL;
-            problem.MaintenanceIssueId = response.MaintenanceIssueId;
-            problem.Block = response.Block;
-            problem.Hostel = response.Hostel;
-            problem.RoomNumber = response.RoomNumber;
-            problem.TimeAvailable = response.TimeAvailable;
-            problem.DateComplaintMade = response.DateComplaintMade;
-            problem.IsResolved = response.IsResolved;
         }
     }
 }

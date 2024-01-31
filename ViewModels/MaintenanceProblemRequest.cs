@@ -8,13 +8,9 @@ namespace LUSCMaintenance.Controllers
     public class MaintenanceProblemRequest
     {
         [Required]
-        public int MaintenanceIssueCategoryId { get; set; }
-
-        [Required]
-        [MaxLength(1)]
         public string Block { get; set; }
 
-        [EnumDataType(typeof(Hostel))]
+        [Required]
         public Hostel Hostel { get; set; }
 
         [Required]
@@ -24,6 +20,7 @@ namespace LUSCMaintenance.Controllers
         [Required]
         public DateTime TimeAvailable { get; set; }
 
-        public IFormFile Image { get; set; }
+        [Required]
+        public List<int> MaintenanceIssueIds { get; set; }
     }
 }
