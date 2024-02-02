@@ -129,6 +129,7 @@ namespace LUSCMaintenance.Controllers
             {
                 Id = maintenanceProblem.Id,
                 WebMail = maintenanceProblem.WebMail,
+                ImageUrl = maintenanceProblem.ImageURL,
                 Block = maintenanceProblem.Block,
                 Hostel = maintenanceProblem.Hostel,
                 RoomNumber = maintenanceProblem.RoomNumber,
@@ -156,6 +157,7 @@ namespace LUSCMaintenance.Controllers
             {
                 Id = problem.Id,
                 WebMail = problem.WebMail,
+                ImageUrl = problem.ImageURL,
                 Block = problem.Block,
                 Hostel = problem.Hostel,
                 RoomNumber = problem.RoomNumber,

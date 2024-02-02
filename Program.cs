@@ -30,11 +30,11 @@ namespace LUSCMaintenance
 
             builder.Services.AddIdentity<User, IdentityRole<int>>(options =>
             {
-                options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequireUppercase = true;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
                 options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequiredLength = 6;
+                options.Password.RequiredLength = 3;
 
             })
               .AddEntityFrameworkStores<LUSCMaintenanceDbContext>()
@@ -76,16 +76,28 @@ namespace LUSCMaintenance
 
             builder.Services.AddLogging();
 
+            //// Allow requests from any origin
+            //builder.Services.AddCors(options =>
+            //{
+            //    options.AddPolicy("AllowAll", builder =>
+            //    {
+            //        builder.WithOrigins("*")
+            //               .AllowAnyMethod()
+            //               .AllowAnyHeader()
+            //               .AllowCredentials(); 
+
+            //    });
+            //});
 
             // Allow requests from specific origins
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowSome", builder =>
                 {
-                    builder.WithOrigins("http://localhost:5173", "https://196.13.111.164:5001")
+                    builder.WithOrigins("http://localhost:5173", "https://196.13.111.164:5001", "https://lmumaintenance.netlify.app")
                            .AllowAnyMethod()
                            .AllowAnyHeader()
-                           .AllowCredentials(); // allow credentials
+                           .AllowCredentials();
                 });
             });
 
@@ -138,19 +150,28 @@ namespace LUSCMaintenance
 
             app.UseCors("AllowSome");
 
-            ////migrate any database changes on startup(includes initial db creation)
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var dbContext = scope.ServiceProvider.GetRequiredService<LUSCMaintenanceDbContext>();
-            //    dbContext.Database.Migrate();
-            //}
+            //migrate any database changes on startup(includes initial db creation)
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<LUSCMaintenanceDbContext>();
+                dbContext.Database.Migrate();
+            }
 
-            //app.Urls.Add("https://196.13.111.164:5001");//using the for the server IP
+            app.Urls.Add("https://196.13.111.164:5001");//using the for the server IP
 
             app.UseSwagger();
             app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
+
+            //// Use the certificate and private key files from the director
+            //app.UseKestrel(options =>
+            //{
+            //    options.ConfigureHttpsDefaults(httpsOptions =>
+            //    {
+            //        httpsOptions.ServerCertificate = new X509Certificate2("/etc/ssl/certs/certificate-file.pem", "/etc/ssl/private/private-key-file.pem");
+            //    });
+            //});
 
             app.UseAuthorization();
 

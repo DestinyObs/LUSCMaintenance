@@ -10,6 +10,7 @@ namespace LUSCMaintenance.DTOs
     {
         public int Id { get; set; }
         public string WebMail { get; set; }
+        public string ImageUrl { get; set; }
         public string Block { get; set; }
         public Hostel Hostel { get; set; }
         public int RoomNumber { get; set; }
