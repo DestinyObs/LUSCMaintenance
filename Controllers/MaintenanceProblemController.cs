@@ -71,7 +71,7 @@ namespace LUSCMaintenance.Controllers
             {
                 WebMail = userWebMail,
                 Block = maintenanceProblemRequest.Block,
-                Hostel = maintenanceProblemRequest.Hostel,
+                Hostel = maintenanceProblemRequest.Hostel, // Use the provided Hostel string
                 RoomNumber = maintenanceProblemRequest.RoomNumber,
                 TimeAvailable = maintenanceProblemRequest.TimeAvailable,
                 ImageURL = imageUrl,

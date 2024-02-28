@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
-using LUSCMaintenance.Models;
 
 namespace LUSCMaintenance.Controllers
 {
@@ -14,8 +13,8 @@ namespace LUSCMaintenance.Controllers
         [MaxLength(1)]
         public string Block { get; set; }
 
-        [EnumDataType(typeof(Hostel))]
-        public Hostel Hostel { get; set; }
+        [Required]
+        public string Hostel { get; set; } // Change Hostel to string type
 
         [Required]
         [Range(100, 999)]
@@ -26,6 +25,5 @@ namespace LUSCMaintenance.Controllers
 
         [Required]
         public List<int> MaintenanceIssueIds { get; set; }
-
     }
 }

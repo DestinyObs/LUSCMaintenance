@@ -5,18 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LUSCMaintenance.Models
 {
-    public enum Hostel
-    {
-        Daniel,
-        Dorcas,
-        Sarah,
-        Abigail,
-        Deborah,
-        Joseph,
-        Isaac,
-        Abraham
-    }
-
     public class MaintenanceProblem
     {
         [Key]
@@ -30,8 +18,8 @@ namespace LUSCMaintenance.Models
         [Required]
         public string Block { get; set; }
 
-        [EnumDataType(typeof(Hostel))]
-        public Hostel Hostel { get; set; }
+        [Required]
+        public string Hostel { get; set; } // Changed Hostel to string type
 
         [Required]
         [Range(100, 999)]
@@ -43,6 +31,7 @@ namespace LUSCMaintenance.Models
         public DateTime DateComplaintMade { get; set; } = DateTime.UtcNow;
 
         public bool IsResolved { get; set; } = false;
+
         // Add navigation property for the join table
         public virtual ICollection<MaintenanceProblemIssue> MaintenanceProblemIssues { get; set; }
     }
