@@ -284,7 +284,7 @@ namespace LUSCMaintenance.Controllers
             // Add more claims as needed
         }, CookieAuthenticationDefaults.AuthenticationScheme)));
 
-                return Ok(new { StatusCode = 200, Token = token });
+                return Ok(new { StatusCode = 200, Token = token, Email = user.WebMail });
             }
             catch (Exception ex)
             {

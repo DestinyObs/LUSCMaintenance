@@ -31,19 +31,21 @@ namespace LUSCMaintenance.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<MaintenanceProblemResponse>> AddMaintenanceProblem([FromForm] MaintenanceProblemRequest maintenanceProblemRequest)
+        public async Task<ActionResult<MaintenanceProblemResponse>> AddMaintenanceProblem([FromBody] MaintenanceProblemRequest maintenanceProblemRequest)
         {
             if (maintenanceProblemRequest == null)
             {
                 return BadRequest("Invalid request data.");
             }
 
-            // Extract user's webmail from claims
-            var userWebMail = User.FindFirst(ClaimTypes.Email)?.Value;
+            // Extract user's webmail from the request
+            var userWebMail = maintenanceProblemRequest.UserWebMail;
+
             if (string.IsNullOrEmpty(userWebMail))
             {
                 return BadRequest("Unable to identify user.");
             }
+
 
             // Initialize imageURL to null
             string imageUrl = null;

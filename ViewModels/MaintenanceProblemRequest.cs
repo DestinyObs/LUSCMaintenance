@@ -7,6 +7,8 @@ namespace LUSCMaintenance.Controllers
 {
     public class MaintenanceProblemRequest
     {
+
+        public string UserWebMail { get; set; }
         public IFormFile? Image { get; set; }
 
         [Required]
