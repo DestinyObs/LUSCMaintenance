@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.InkML;
 using LUSCMaintenance.Data;
 using LUSCMaintenance.Interfaces;
 using LUSCMaintenance.Models;
@@ -39,7 +40,14 @@ namespace LUSCMaintenance.Repositories
             _context.MaintenanceProblems.Update(maintenanceProblem);
             await _context.SaveChangesAsync();
         }
-
+        public async Task<List<MaintenanceProblem>> GetAllMaintenanceProblemsWithRelatedDataAsync()
+        {
+            return await _context.MaintenanceProblems
+                .Include(mp => mp.MaintenanceProblemIssues)
+                    .ThenInclude(mpi => mpi.MaintenanceIssue)
+                        .ThenInclude(mi => mi.MaintenanceIssueCategory)
+                .ToListAsync();
+        }
         public async Task DeleteMaintenanceProblemAsync(int id)
         {
             var maintenanceProblem = await _context.MaintenanceProblems.FindAsync(id);

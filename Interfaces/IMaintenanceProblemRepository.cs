@@ -10,6 +10,7 @@ namespace LUSCMaintenance.Interfaces
         Task<MaintenanceProblem> GetMaintenanceProblemByIdAsync(int id);
         Task<MaintenanceProblem> AddMaintenanceProblemAsync(MaintenanceProblem maintenanceProblem);
         Task UpdateMaintenanceProblemAsync(MaintenanceProblem maintenanceProblem);
+        Task<List<MaintenanceProblem>> GetAllMaintenanceProblemsWithRelatedDataAsync();
         Task DeleteMaintenanceProblemAsync(int id);
         Task<IEnumerable<MaintenanceProblem>> GetMaintenanceProblemsByUserAsync(string userWebMail);
 

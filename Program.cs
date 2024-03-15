@@ -1,4 +1,5 @@
 using DotNetEnv;
+using Hangfire;
 using LUSCMaintenance.Data;
 using LUSCMaintenance.Helpers;
 using LUSCMaintenance.Interfaces;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Hangfire.SqlServer;
 using System.Text;
 
 namespace LUSCMaintenance
@@ -49,7 +51,11 @@ namespace LUSCMaintenance
                     .RequireAuthenticatedUser()
                     .Build();
             });
-           
+            // Configure Hangfire with SQL Server storage
+            var hangfireConnectionString = builder.Configuration.GetConnectionString("HangfireConnection");
+            builder.Services.AddHangfire(config =>
+                config.UseSqlServerStorage(hangfireConnectionString));
+
 
 
             builder.Services.AddAuthentication(options =>
@@ -134,17 +140,22 @@ namespace LUSCMaintenance
             var app = builder.Build();
 
             app.UseRouting();
+            // Use Hangfire dashboard for monitoring (optional)
+            app.UseHangfireDashboard();
+
+            // Schedule recurring job to run at the end of every week
+            RecurringJob.AddOrUpdate("generate-reports-job", () => app.Services.GetRequiredService<MaintenanceReportService>().GenerateAndSendMaintenanceReports(), Cron.Weekly(DayOfWeek.Sunday, hour: 23, minute: 59));
 
             app.UseCors("AllowSome");
 
-            //migrate any database changes on startup(includes initial db creation)
-            using (var scope = app.Services.CreateScope())
-            {
-                var dbContext = scope.ServiceProvider.GetRequiredService<LUSCMaintenanceDbContext>();
-                dbContext.Database.Migrate();
-            }
+            ////migrate any database changes on startup(includes initial db creation)
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var dbContext = scope.ServiceProvider.GetRequiredService<LUSCMaintenanceDbContext>();
+            //    dbContext.Database.Migrate();
+            //}
 
-            app.Urls.Add("https://196.13.111.164:5001");//using the for the server IP
+            //app.Urls.Add("https://196.13.111.164:5001");//using the for the server IP
 
             app.UseSwagger();
             app.UseSwaggerUI();
