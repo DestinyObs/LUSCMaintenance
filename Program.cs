@@ -52,7 +52,7 @@ namespace LUSCMaintenance
                     .Build();
             });
             // Configure Hangfire with SQL Server storage
-            var hangfireConnectionString = builder.Configuration.GetConnectionString("HangfireConnection");
+            var hangfireConnectionString = builder.Configuration.GetConnectionString("MyString");
             builder.Services.AddHangfire(config =>
                 config.UseSqlServerStorage(hangfireConnectionString));
 

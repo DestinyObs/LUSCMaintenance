@@ -69,7 +69,9 @@ namespace LUSCMaintenance
                     workbook.SaveAs(stream);
 
                     // Send the Excel file as an email attachment
-                    await SendEmailWithAttachment(group.Key, stream.ToArray());
+                    // Send the Excel file as an email attachment to multiple recipients
+                    var recipients = new List<string> { "vcmlusc@lmu.edu.ng", "obueh.destiny@lmu.edu.ng" };
+                    await SendEmailWithAttachment(recipients, stream.ToArray());
                 }
             }
             catch (Exception ex)
@@ -79,10 +81,15 @@ namespace LUSCMaintenance
             }
         }
 
-        private async Task SendEmailWithAttachment(string hostel, byte[] attachment)
+        private async Task SendEmailWithAttachment(IEnumerable<string> recipients, byte[] attachment)
         {
-            // Send the email with the attachment
-            await _emailService.SendEmailAsync(hostel, "Maintenance Report", "Please find attached maintenance report.", attachment);
+            foreach (var recipient in recipients)
+            {
+                var recipientList = new List<string> { recipient }; // Wrap the recipient into a collection
+                await _emailService.SendEmailAsync(recipientList, "Maintenance Report", "Please find attached maintenance report.", attachment);
+            }
         }
+
+
     }
 }

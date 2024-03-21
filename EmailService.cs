@@ -16,7 +16,7 @@ namespace LUSCMaintenance
             _smtpSettings = smtpSettings;
         }
 
-        public async Task SendEmailAsync(string recipientEmail, string subject, string body, byte[] attachment)
+        public async Task SendEmailAsync(IEnumerable<string> recipientEmails, string subject, string body, byte[] attachment)
         {
             try
             {
@@ -29,7 +29,10 @@ namespace LUSCMaintenance
                         smtpClient.EnableSsl = true;
 
                         mail.From = new MailAddress(_smtpSettings.Username);
-                        mail.To.Add(recipientEmail);
+                        foreach (var recipientEmail in recipientEmails)
+                        {
+                            mail.To.Add(recipientEmail);
+                        }
                         mail.Subject = subject;
                         mail.Body = body;
 
@@ -50,5 +53,6 @@ namespace LUSCMaintenance
                 Console.WriteLine($"An error occurred while sending the email: {ex.Message}");
             }
         }
+
     }
 }

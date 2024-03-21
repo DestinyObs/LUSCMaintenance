@@ -3,6 +3,7 @@ using System;
 using LUSCMaintenance.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LUSCMaintenance.Migrations
 {
     [DbContext(typeof(LUSCMaintenanceDbContext))]
-    partial class LUSCMaintenanceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240315165538_eoeoe")]
+    partial class eoeoe
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -465,14 +468,14 @@ namespace LUSCMaintenance.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "cd6685a3-13ff-4856-a744-d761accfeb76",
+                            ConcurrencyStamp = "c0d80944-6f6f-4e15-b29b-18d0676f28f0",
                             Email = "hor@lmu.edu.ng",
                             EmailConfirmed = true,
                             IsVerified = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "HOR@LMU.EDU.NG",
                             NormalizedUserName = "HOR@LMU.EDU.NG",
-                            PasswordHash = "$2a$10$Bi5B4EhwvMMRLVg2ZW1KIunloEu15WLah2.nzcwugnihEIXXkNGRi",
+                            PasswordHash = "$2a$10$HX9XfOyEpr5TIlg/dnN8e.w4fsW9koxoqxfTxk1Wu9OFeCkCArbcq",
                             PhoneNumberConfirmed = false,
                             Roles = "Admin",
                             SecurityStamp = "",
@@ -484,14 +487,14 @@ namespace LUSCMaintenance.Migrations
                         {
                             Id = 2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "200cac78-71e4-4b04-b7b5-df4b1776b8ac",
+                            ConcurrencyStamp = "ccec19cd-4809-4b28-a92d-0cf50bd751eb",
                             Email = "vcm@lmu.edu.ng",
                             EmailConfirmed = true,
                             IsVerified = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "VCM@LMU.EDU.NG",
                             NormalizedUserName = "VCM@LMU.EDU.NG",
-                            PasswordHash = "$2a$10$Bi5B4EhwvMMRLVg2ZW1KIu7ST1zD2ZsTq6QKhYSBAXwvV8XMTHneK",
+                            PasswordHash = "$2a$10$HX9XfOyEpr5TIlg/dnN8e.tlBVlOmqCSMBGjcgGSw3uj6yte2OIWO",
                             PhoneNumberConfirmed = false,
                             Roles = "Admin",
                             SecurityStamp = "",
