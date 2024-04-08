@@ -51,13 +51,7 @@ namespace LUSCMaintenance
                     .RequireAuthenticatedUser()
                     .Build();
             });
-            // Configure Hangfire with SQL Server storage
-            var hangfireConnectionString = builder.Configuration.GetConnectionString("MyString");
-            builder.Services.AddHangfire(config =>
-                config.UseSqlServerStorage(hangfireConnectionString));
-
-
-
+           
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -85,12 +79,12 @@ namespace LUSCMaintenance
             // Allow requests from specific origins
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowSome", builder =>
+                options.AddPolicy("AllowSome", policyBuilder =>
                 {
-                    builder.WithOrigins("http://localhost:5173", "https://196.13.111.164:5001/", "https://lmumaintenance.netlify.app", "https://maintenance.lmu.edu.ng:5001/")
-                           .AllowAnyMethod()
-                           .AllowAnyHeader()
-                           .AllowCredentials();
+                    policyBuilder.WithOrigins("http://196.13.111.164:5175", "https://196.13.111.164:5001", "https://maintenance.lmu.edu.ng:5001")
+                                 .AllowAnyMethod()
+                                 .AllowAnyHeader()
+                                 .AllowCredentials();
                 });
             });
 
@@ -136,39 +130,39 @@ namespace LUSCMaintenance
 
             });
 
-            
+
             var app = builder.Build();
 
-            app.UseRouting();
-            // Use Hangfire dashboard for monitoring (optional)
-            app.UseHangfireDashboard();
+            // Migrate any database changes on startup (includes initial db creation)
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<LUSCMaintenanceDbContext>();
+                dbContext.Database.Migrate();
+            }
 
-            // Schedule recurring job to run at the end of every week
-            RecurringJob.AddOrUpdate("generate-reports-job", () => app.Services.GetRequiredService<MaintenanceReportService>().GenerateAndSendMaintenanceReports(), Cron.Weekly(DayOfWeek.Sunday, hour: 23, minute: 59));
+            app.Urls.Add("https://196.13.111.164:5001"); // Using this for the server IP
 
             app.UseCors("AllowSome");
 
-            ////migrate any database changes on startup(includes initial db creation)
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var dbContext = scope.ServiceProvider.GetRequiredService<LUSCMaintenanceDbContext>();
-            //    dbContext.Database.Migrate();
-            //}
+            app.UseHttpsRedirection();
 
-            //app.Urls.Add("https://196.13.111.164:5001");//using the for the server IP
+            app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            // Endpoint routing
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers().RequireCors("AllowSome"); // Apply CORS policy to controller endpoints
+            });
 
             app.UseSwagger();
             app.UseSwaggerUI();
 
-            app.UseHttpsRedirection();
-
-
-            app.UseAuthorization();
-
-
-            app.MapControllers();
+            // Removed the redundant app.MapControllers();
 
             app.Run();
+
         }
     }
 }
