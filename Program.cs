@@ -22,7 +22,7 @@ namespace LUSCMaintenance
     {
         public static void Main(string[] args)
         {
-          
+
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddDbContext<LUSCMaintenanceDbContext>(options =>
@@ -51,7 +51,7 @@ namespace LUSCMaintenance
                     .RequireAuthenticatedUser()
                     .Build();
             });
-           
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -76,15 +76,25 @@ namespace LUSCMaintenance
 
             builder.Services.AddLogging();
 
-            // Allow requests from specific origins
+            //// Allow requests from specific origins
+            //builder.Services.AddCors(options =>
+            //{
+            //    options.AddPolicy("AllowSome", policyBuilder =>
+            //    {
+            //        policyBuilder.WithOrigins("http://196.13.111.164:5175", "https://196.13.111.164:5001", "https://maintenance.lmu.edu.ng:5001")
+            //                     .AllowAnyMethod()
+            //                     .AllowAnyHeader()
+            //                     .AllowCredentials();
+            //    });
+            //});
+
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowSome", policyBuilder =>
+                options.AddPolicy("AllowAll", policyBuilder =>
                 {
-                    policyBuilder.WithOrigins("http://196.13.111.164:5175", "https://196.13.111.164:5001", "https://maintenance.lmu.edu.ng:5001")
+                    policyBuilder.AllowAnyOrigin()
                                  .AllowAnyMethod()
-                                 .AllowAnyHeader()
-                                 .AllowCredentials();
+                                 .AllowAnyHeader();
                 });
             });
 
@@ -130,7 +140,6 @@ namespace LUSCMaintenance
 
             });
 
-
             var app = builder.Build();
 
             // Migrate any database changes on startup (includes initial db creation)
@@ -140,29 +149,24 @@ namespace LUSCMaintenance
                 dbContext.Database.Migrate();
             }
 
-            app.Urls.Add("https://196.13.111.164:5001"); // Using this for the server IP
+            app.Urls.Add("http://196.13.111.164:5001"); // Using this for the server IP
 
-            app.UseCors("AllowSome");
+            app.UseCors("AllowAll");
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
             app.UseAuthentication();
             app.UseAuthorization();
 
-            // Endpoint routing
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers().RequireCors("AllowSome"); // Apply CORS policy to controller endpoints
-            });
+            // Map controllers here
+            app.MapControllers();
 
             app.UseSwagger();
             app.UseSwaggerUI();
 
-            // Removed the redundant app.MapControllers();
-
             app.Run();
-
         }
     }
 }
