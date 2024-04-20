@@ -417,7 +417,7 @@ namespace LUSCMaintenance.Controllers
         private async Task SendPasswordResetEmail(string email, string resetToken)
         {
             // Construct email body with reset link
-            var resetLink = $"http://196.13.111.164:5175/forgetPassword?token={resetToken}";
+            var resetLink = $"http://hostelmaintenance.lmu.edu.ng/forgetPassword?token={resetToken}";
 
             var body = $"Click the following link to reset your password: {resetLink} \n Note that the code expires after 10 minutes ";
 
