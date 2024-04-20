@@ -462,13 +462,13 @@ namespace LUSCMaintenance.Controllers
             //var encryptedUserId = ProtectData(userId);
 
             // Construct email body with encrypted verification link
-            var verificationLink = $"http://196.13.111.164:5175/verify-email?userId={userId}&token={verificationToken}";
+            var verificationLink = $"http://hostelmaintenance.lmu.edu.ng//verify-email?userId={userId}&token={verificationToken}";
             return $"Click the following link to verify your email: {verificationLink}";
         }
 
         private string GetVerificationEmailHtmlBody(string userId, string verificationToken)
         {
-            var verificationLink = $"http://196.13.111.164:5175/verify-email?userId={userId}&token={verificationToken}";
+            var verificationLink = $"http://hostelmaintenance.lmu.edu.ng//verify-email?userId={userId}&token={verificationToken}";
             var assembly = Assembly.GetExecutingAssembly();
             var resourceName = "LUSCMaintenance.Helpers.SendEmail.html";
 
