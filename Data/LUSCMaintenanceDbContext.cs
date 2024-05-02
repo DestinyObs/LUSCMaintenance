@@ -33,10 +33,10 @@ namespace LUSCMaintenance.Data
 
             // Seed Maintenance Issue Categories
             modelBuilder.Entity<MaintenanceIssueCategory>().HasData(
-                new MaintenanceIssueCategory { Id = 1, Name = "Electrical Maintenance" },
-                new MaintenanceIssueCategory { Id = 2, Name = "Carpentry Maintenance" },
-                new MaintenanceIssueCategory { Id = 3, Name = "Plumbing Maintenance" },
-                new MaintenanceIssueCategory { Id = 4, Name = "Others Maintenance" }
+                new MaintenanceIssueCategory { Id = 1, Name = "Electrical" },
+                new MaintenanceIssueCategory { Id = 2, Name = "Carpentry" },
+                new MaintenanceIssueCategory { Id = 3, Name = "Plumbing" },
+                new MaintenanceIssueCategory { Id = 4, Name = "Others" }
             );
 
             modelBuilder.Entity<MaintenanceIssue>().HasData(

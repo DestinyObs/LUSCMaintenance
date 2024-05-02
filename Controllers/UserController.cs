@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using System.Reflection;
+using Azure.Core;
 
 namespace LUSCMaintenance.Controllers
 {
@@ -263,11 +264,12 @@ namespace LUSCMaintenance.Controllers
                         CreatedAt = DateTime.UtcNow
                     };
 
+
                     // Save the UserVerification to the database
                     await _userRepository.CreateUserVerificationAsync(userVerification);
 
                     // Send verification email
-                    await SendEmail(user.WebMail, "Account Verification", GetVerificationEmailBody(user.Id.ToString(), verificationToken));
+                    await SendVerificationEmail(user.WebMail, "Account Verification", GetVerificationEmailHtmlBody(user.Id.ToString(), verificationToken));
 
                     // Return a forbidden message with a 403 Forbidden status code
                     return StatusCode(403, new { Message = "Email verification pending. Check your email for verification." });
