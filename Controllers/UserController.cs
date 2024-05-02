@@ -470,7 +470,7 @@ namespace LUSCMaintenance.Controllers
         {
             var verificationLink = $"http://hostelmaintenance.lmu.edu.ng/verify-email?userId={userId}&token={verificationToken}";
             var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = "LUSCMaintenance.Helpers.SendEmail.html";
+            var resourceName = "LUSCMaintenance.Helpers.SendVerifyEmail.html";
 
             using (Stream stream = assembly.GetManifestResourceStream(resourceName))
             using (StreamReader reader = new StreamReader(stream))
