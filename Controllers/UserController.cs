@@ -24,6 +24,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using System.Reflection;
 using Azure.Core;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace LUSCMaintenance.Controllers
 {
@@ -36,6 +37,7 @@ namespace LUSCMaintenance.Controllers
         private readonly IConfiguration _configuration;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly IDistributedCache _distributedCache;
         private readonly IDataProtectionProvider _provider;
         private readonly ILogger<UserController> _logger;
         private readonly SmtpSettings _smtpSettings;
@@ -46,6 +48,7 @@ namespace LUSCMaintenance.Controllers
             IConfiguration configuration,
             UserManager<User> userManager,
             SignInManager<User> signInManager,
+            IDistributedCache distributedCache,
             IOptions<SmtpSettings> smtpSettings,
             IDataProtectionProvider provider,
             ILogger<UserController> logger)
@@ -56,6 +59,7 @@ namespace LUSCMaintenance.Controllers
             _configuration = configuration;
             _userManager = userManager;
             _signInManager = signInManager;
+            _distributedCache = distributedCache;
             _provider = provider;
             _logger = logger;
             _smtpSettings = smtpSettings.Value;
@@ -168,8 +172,23 @@ namespace LUSCMaintenance.Controllers
         [HttpPost("VerifyEmail")]
         public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequest request)
         {
+            var cacheKey = $"verification_in_progress_{request.UserId}";
+
+            var isVerificationInProgress = await _distributedCache.GetStringAsync(cacheKey);
+
+            if (!string.IsNullOrEmpty(isVerificationInProgress))
+            {
+                return BadRequest(new { Message = "Verification is already in progress. Please wait." });
+            }
+
+            await _distributedCache.SetStringAsync(cacheKey, "true", new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) // Set a timeout for the key
+            });
+
             try
             {
+
                 var userVerification = await _userRepository.GetUserVerificationAsync(request.UserId, request.VerificationToken);
 
                 if (userVerification == null)
@@ -209,13 +228,18 @@ namespace LUSCMaintenance.Controllers
                 await _userRepository.UpdateUserVerificationAsync(userVerification);
 
 
+                // After successful verification
+                await _distributedCache.RemoveAsync(cacheKey);
+
                 return Ok(new { StatusCode = 200, Message = "Email verification successful. You can now log in." });
             }
             catch (Exception ex)
             {
+                await _distributedCache.RemoveAsync(cacheKey); // Ensure the key is removed even if an exception occurs
                 _logger.LogError(ex, "An error occurred while processing the email verification request.");
                 return StatusCode(500, new { Message = "An error occurred while processing your request.", Exception = ex.Message });
             }
+
         }
 
         [HttpPost("Login")]
