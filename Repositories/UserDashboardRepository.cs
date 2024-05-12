@@ -31,19 +31,25 @@ namespace LUSCMaintenance.Repositories
                 .FirstOrDefaultAsync(p => p.Id == issueId);
         }
 
-        public async Task<bool> UpdateIssueAsync(int issueId, MaintenanceProblem updatedIssue)
+
+        public async Task<bool> ToggleIssueResolvedAsync(int issueId)
         {
-            var issueToUpdate = await _dbContext.MaintenanceProblems.FindAsync(issueId);
-            if (issueToUpdate == null)
+            var issueToToggle = await _dbContext.MaintenanceProblems.FindAsync(issueId);
+            if (issueToToggle == null)
                 return false;
 
-            issueToUpdate.Description = updatedIssue.Description;
-            issueToUpdate.Status = updatedIssue.Status;
+            // Check if the issue is already resolved
+            if (issueToToggle.IsResolved)
+                return true; // No need to update, it's already resolved
 
-            _dbContext.MaintenanceProblems.Update(issueToUpdate);
+            // Toggle the IsResolved property
+            issueToToggle.IsResolved = true;
+
+            _dbContext.MaintenanceProblems.Update(issueToToggle);
             await _dbContext.SaveChangesAsync();
             return true;
         }
+
 
         public async Task<bool> DeleteIssueAsync(int issueId)
         {
@@ -59,22 +65,26 @@ namespace LUSCMaintenance.Repositories
         public async Task<List<MaintenanceProblem>> FilterIssuesByDateAsync(DateTime date)
         {
             return await _dbContext.MaintenanceProblems
-                .Where(p => p.DateComplaintMade.Date == date.Date) 
+                .Where(p => p.DateComplaintMade.Date == date.Date)
                 .ToListAsync();
         }
 
-        public async Task<List<MaintenanceProblem>> FilterIssuesByTypeAsync(string issueType)
+        public async Task<List<MaintenanceProblem>> FilterIssuesByTypeAsync(string issueCategory)
         {
             return await _dbContext.MaintenanceProblems
-                .Where(p => p.MaintenanceIssue.Description == issueType)
+                .Where(p => p.MaintenanceProblemIssues
+                    .Any(pi => pi.MaintenanceIssue.MaintenanceIssueCategory.Name == issueCategory))
                 .ToListAsync();
         }
 
-        public async Task<List<MaintenanceProblem>> FilterIssuesByStatusAsync(string status)
+
+
+        public async Task<List<MaintenanceProblem>> FilterIssuesByStatusAsync(bool isResolved)
         {
             return await _dbContext.MaintenanceProblems
-                .Where(p => p.Status == status)
+                .Where(p => p.IsResolved == isResolved)
                 .ToListAsync();
         }
+
     }
 }

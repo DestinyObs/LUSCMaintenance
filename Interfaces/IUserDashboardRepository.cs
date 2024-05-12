@@ -9,10 +9,10 @@ namespace LUSCMaintenance.Interfaces
 
         Task<List<MaintenanceProblem>> GetIssuesByUserIdAsync(string webmail);
         Task<MaintenanceProblem> GetIssueByIdAsync(int issueId);
-        Task<bool> UpdateIssueAsync(int issueId, MaintenanceProblem updatedIssue);
         Task<bool> DeleteIssueAsync(int issueId);
-        Task<List<MaintenanceProblem>> FilterIssuesByDateAsync(string date);
+        Task<List<MaintenanceProblem>> FilterIssuesByDateAsync(DateTime date);
         Task<List<MaintenanceProblem>> FilterIssuesByTypeAsync(string issueType);
-        Task<List<MaintenanceProblem>> FilterIssuesByStatusAsync(string status);
+        Task<bool> ToggleIssueResolvedAsync(int issueId);
+        Task<List<MaintenanceProblem>> FilterIssuesByStatusAsync(bool isResolved);
     }
 }
