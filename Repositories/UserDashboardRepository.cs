@@ -21,6 +21,9 @@ namespace LUSCMaintenance.Repositories
         public async Task<List<MaintenanceProblem>> GetIssuesByUserIdAsync(string webmail)
         {
             return await _dbContext.MaintenanceProblems
+                .Include(p => p.MaintenanceProblemIssues)
+                    .ThenInclude(pi => pi.MaintenanceIssue)
+                        .ThenInclude(mi => mi.MaintenanceIssueCategory)
                 .Where(p => p.WebMail == webmail)
                 .ToListAsync();
         }
