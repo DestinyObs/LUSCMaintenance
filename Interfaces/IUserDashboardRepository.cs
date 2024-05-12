@@ -6,7 +6,8 @@ namespace LUSCMaintenance.Interfaces
 {
     public interface IUserDashboardRepository
     {
-        Task<List<MaintenanceProblem>> GetIssuesByUserIdAsync(int userId);
+
+        Task<List<MaintenanceProblem>> GetIssuesByUserIdAsync(string webmail);
         Task<MaintenanceProblem> GetIssueByIdAsync(int issueId);
         Task<bool> UpdateIssueAsync(int issueId, MaintenanceProblem updatedIssue);
         Task<bool> DeleteIssueAsync(int issueId);
