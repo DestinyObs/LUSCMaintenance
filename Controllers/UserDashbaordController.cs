@@ -23,14 +23,21 @@ namespace LUSCMaintenance.Controllers
             _userDashboardRepository = userDashboardRepository;
         }
 
+
         // GET: api/UserDashboard/issues
         [HttpGet("issues")]
         public async Task<IActionResult> GetIssuesByUserId()
         {
             try
             {
-                // Get the current user's webmail from the claims// Get the current user's ID
-                var webmail = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                // Get the current user's webmail from the claims
+                var webmail = User.FindFirst(ClaimTypes.Email)?.Value;
+
+                if (string.IsNullOrEmpty(webmail))
+                {
+                    return Unauthorized(new { Message = "Webmail claim not found in token." });
+                }
+
                 var issues = await _userDashboardRepository.GetIssuesByUserIdAsync(webmail);
 
                 return Ok(issues);
@@ -47,15 +54,13 @@ namespace LUSCMaintenance.Controllers
         {
             try
             {
-                // Get the issue by its ID
                 var issue = await _userDashboardRepository.GetIssueByIdAsync(issueId);
                 if (issue == null)
                 {
                     return NotFound(new { Message = "Issue not found." });
                 }
 
-                // Check if the issue belongs to the current user
-                var webmail = User.Identity.Name;
+                var webmail = User.FindFirst(ClaimTypes.Email)?.Value;
                 if (issue.WebMail != webmail)
                 {
                     return Forbid(); // Issue does not belong to the authenticated user
@@ -75,21 +80,18 @@ namespace LUSCMaintenance.Controllers
         {
             try
             {
-                // Get the issue by its ID
                 var issue = await _userDashboardRepository.GetIssueByIdAsync(issueId);
                 if (issue == null)
                 {
                     return NotFound(new { Message = "Issue not found." });
                 }
 
-                // Check if the issue belongs to the current user
-                var webmail = User.Identity.Name;
+                var webmail = User.FindFirst(ClaimTypes.Email)?.Value;
                 if (issue.WebMail != webmail)
                 {
                     return Forbid(); // Issue does not belong to the authenticated user
                 }
 
-                // Toggle the resolved status
                 var result = await _userDashboardRepository.ToggleIssueResolvedAsync(issueId);
                 if (!result)
                 {
@@ -110,21 +112,18 @@ namespace LUSCMaintenance.Controllers
         {
             try
             {
-                // Get the issue by its ID
                 var issue = await _userDashboardRepository.GetIssueByIdAsync(issueId);
                 if (issue == null)
                 {
                     return NotFound(new { Message = "Issue not found." });
                 }
 
-                // Check if the issue belongs to the current user
-                var webmail = User.Identity.Name;
+                var webmail = User.FindFirst(ClaimTypes.Email)?.Value;
                 if (issue.WebMail != webmail)
                 {
                     return Forbid(); // Issue does not belong to the authenticated user
                 }
 
-                // Delete the issue
                 var result = await _userDashboardRepository.DeleteIssueAsync(issueId);
                 if (!result)
                 {
@@ -145,12 +144,14 @@ namespace LUSCMaintenance.Controllers
         {
             try
             {
-                // Get the current user's webmail from the token
-                var webmail = User.Identity.Name;
+                var webmail = User.FindFirst(ClaimTypes.Email)?.Value;
+                if (string.IsNullOrEmpty(webmail))
+                {
+                    return Unauthorized(new { Message = "Webmail claim not found in token." });
+                }
 
                 var filteredIssues = await _userDashboardRepository.FilterIssuesByDateAsync(date);
 
-                // Filter the issues based on the current user's webmail
                 var userFilteredIssues = filteredIssues.Where(p => p.WebMail == webmail).ToList();
 
                 return Ok(userFilteredIssues);
@@ -167,12 +168,14 @@ namespace LUSCMaintenance.Controllers
         {
             try
             {
-                // Get the current user's webmail from the token
-                var webmail = User.Identity.Name;
+                var webmail = User.FindFirst(ClaimTypes.Email)?.Value;
+                if (string.IsNullOrEmpty(webmail))
+                {
+                    return Unauthorized(new { Message = "Webmail claim not found in token." });
+                }
 
                 var filteredIssues = await _userDashboardRepository.FilterIssuesByTypeAsync(issueCategory);
 
-                // Filter the issues based on the current user's webmail
                 var userFilteredIssues = filteredIssues.Where(p => p.WebMail == webmail).ToList();
 
                 return Ok(userFilteredIssues);

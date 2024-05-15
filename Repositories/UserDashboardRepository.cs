@@ -20,13 +20,42 @@ namespace LUSCMaintenance.Repositories
 
         public async Task<List<MaintenanceProblem>> GetIssuesByUserIdAsync(string webmail)
         {
-            return await _dbContext.MaintenanceProblems
-                .Include(p => p.MaintenanceProblemIssues)
-                    .ThenInclude(pi => pi.MaintenanceIssue)
-                        .ThenInclude(mi => mi.MaintenanceIssueCategory)
+            var issues = await _dbContext.MaintenanceProblems
                 .Where(p => p.WebMail == webmail)
+                .Select(p => new MaintenanceProblem
+                {
+                    Id = p.Id,
+                    WebMail = p.WebMail,
+                    ImageURL = p.ImageURL,
+                    Block = p.Block,
+                    Hostel = p.Hostel,
+                    RoomNumber = p.RoomNumber,
+                    TimeAvailable = p.TimeAvailable,
+                    DateComplaintMade = p.DateComplaintMade,
+                    IsResolved = p.IsResolved,
+                    MaintenanceProblemIssues = p.MaintenanceProblemIssues.Select(mpi => new MaintenanceProblemIssue
+                    {
+                        Id = mpi.Id,
+                        MaintenanceProblemId = mpi.MaintenanceProblemId,
+                        MaintenanceIssueId = mpi.MaintenanceIssueId,
+                        MaintenanceIssue = new MaintenanceIssue
+                        {
+                            Id = mpi.MaintenanceIssue.Id,
+                            Description = mpi.MaintenanceIssue.Description,
+                            MaintenanceIssueCategoryId = mpi.MaintenanceIssue.MaintenanceIssueCategoryId,
+                            MaintenanceIssueCategory = new MaintenanceIssueCategory
+                            {
+                                Id = mpi.MaintenanceIssue.MaintenanceIssueCategory.Id,
+                                Name = mpi.MaintenanceIssue.MaintenanceIssueCategory.Name
+                            }
+                        }
+                    }).ToList()
+                })
                 .ToListAsync();
+
+            return issues;
         }
+
 
         public async Task<MaintenanceProblem> GetIssueByIdAsync(int issueId)
         {
