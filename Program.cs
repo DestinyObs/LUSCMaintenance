@@ -92,6 +92,7 @@ namespace LUSCMaintenance
             builder.Services.AddScoped<IMaintenanceIssueRepository, MaintenanceIssueRepository>();
             builder.Services.AddScoped<IMaintenanceProblemRepository, MaintenanceProblemRepository>();
             builder.Services.AddScoped<IPhotoService, PhotoService>();
+            builder.Services.AddScoped<IUserDashboardRepository, UserDashboardRepository>();
 
 
             builder.Services.AddControllers();

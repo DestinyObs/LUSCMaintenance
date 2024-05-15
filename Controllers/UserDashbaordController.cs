@@ -7,12 +7,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using LUSCMaintenance.Interfaces;
 using LUSCMaintenance.Models;
+using System.Security.Claims;
 
 namespace LUSCMaintenance.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize] // Requires authorization for all endpoints
+    //[Authorize] // Requires authorization for all endpoints
     public class UserDashboardController : ControllerBase
     {
         private readonly IUserDashboardRepository _userDashboardRepository;
@@ -28,8 +29,8 @@ namespace LUSCMaintenance.Controllers
         {
             try
             {
-                // Get the current user's webmail from the claims
-                var webmail = User.Claims.FirstOrDefault(c => c.Type == "Email").Value;
+                // Get the current user's webmail from the claims// Get the current user's ID
+                var webmail = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 var issues = await _userDashboardRepository.GetIssuesByUserIdAsync(webmail);
 
                 return Ok(issues);
