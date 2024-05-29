@@ -60,8 +60,39 @@ namespace LUSCMaintenance.Repositories
         public async Task<MaintenanceProblem> GetIssueByIdAsync(int issueId)
         {
             return await _dbContext.MaintenanceProblems
-                .FirstOrDefaultAsync(p => p.Id == issueId);
+                .Where(p => p.Id == issueId)
+                .Select(p => new MaintenanceProblem
+                {
+                    Id = p.Id,
+                    WebMail = p.WebMail,
+                    ImageURL = p.ImageURL,
+                    Block = p.Block,
+                    Hostel = p.Hostel,
+                    RoomNumber = p.RoomNumber,
+                    TimeAvailable = p.TimeAvailable,
+                    DateComplaintMade = p.DateComplaintMade,
+                    IsResolved = p.IsResolved,
+                    MaintenanceProblemIssues = p.MaintenanceProblemIssues.Select(mpi => new MaintenanceProblemIssue
+                    {
+                        Id = mpi.Id,
+                        MaintenanceProblemId = mpi.MaintenanceProblemId,
+                        MaintenanceIssueId = mpi.MaintenanceIssueId,
+                        MaintenanceIssue = new MaintenanceIssue
+                        {
+                            Id = mpi.MaintenanceIssue.Id,
+                            Description = mpi.MaintenanceIssue.Description,
+                            MaintenanceIssueCategoryId = mpi.MaintenanceIssue.MaintenanceIssueCategoryId,
+                            MaintenanceIssueCategory = new MaintenanceIssueCategory
+                            {
+                                Id = mpi.MaintenanceIssue.MaintenanceIssueCategory.Id,
+                                Name = mpi.MaintenanceIssue.MaintenanceIssueCategory.Name
+                            }
+                        }
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
         }
+
 
 
         public async Task<bool> ToggleIssueResolvedAsync(int issueId)
