@@ -84,15 +84,15 @@ namespace LUSCMaintenance
             builder.Services.AddLogging();
 
 
-            //builder.Services.AddCors(options =>
-            //{
-            //    options.AddPolicy("AllowAll", policyBuilder =>
-            //    {
-            //        policyBuilder.AllowAnyOrigin()
-            //                     .AllowAnyMethod()
-            //                     .AllowAnyHeader();
-            //    });
-            //});
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policyBuilder =>
+                {
+                    policyBuilder.AllowAnyOrigin()
+                                 .AllowAnyMethod()
+                                 .AllowAnyHeader();
+                });
+            });
 
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IMaintenanceIssueCategoryRepository, MaintenanceIssueCategoryRepository>();
@@ -139,16 +139,16 @@ namespace LUSCMaintenance
 
             var app = builder.Build();
 
-            //// Migrate any database changes on startup (includes initial db creation)
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var dbContext = scope.ServiceProvider.GetRequiredService<LUSCMaintenanceDbContext>();
-            //    dbContext.Database.Migrate();
-            //}
+            // Migrate any database changes on startup (includes initial db creation)
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<LUSCMaintenanceDbContext>();
+                dbContext.Database.Migrate();
+            }
 
-            //app.Urls.Add("http://196.13.111.164:5001"); // Using this for the server IP
+            app.Urls.Add("http://196.13.111.164:5001"); // Using this for the server IP
 
-            //app.UseCors("AllowAll");
+            app.UseCors("AllowAll");
 
             app.UseHttpsRedirection();
 
